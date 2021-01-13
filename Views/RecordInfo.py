@@ -1123,6 +1123,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             检测用户输入的ip地址和选择的soc版本文件
             创建timer计时器
         '''
+        "...."
         self.label_4.setText('')
         self.address = self.lineEdit.text()
         if not self.address:
