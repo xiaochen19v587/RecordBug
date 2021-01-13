@@ -93,23 +93,23 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.label_10.setText('')
         res = Mkdir_Path_Views().mkdir_file_path('/home/user/Data/car_instance/')
         if res:
-            # res = subprocess.call(
-            #     'timeout 1 adb pull /data/zros/res/car_instance/default.xml /home/user/Data/car_instance/', shell=True)
-            # if res:
-            #     self.create_pop('adb is not connect')
-            # else:
-            #     data = os.popen('cat /home/user/Data/car_instance/default.xml')
-            #     car_info = re.findall(
-            #         '<car_instance>(.*?)</car_instance>', data.read())[0]
-            #     self.label_17.setText(car_info)
-            try:
+            res = subprocess.call(
+                'timeout 1 adb pull /data/zros/res/car_instance/default.xml /home/user/Data/car_instance/', shell=True)
+            if res:
+                self.create_pop('adb is not connect')
+            else:
                 data = os.popen('cat /home/user/Data/car_instance/default.xml')
                 car_info = re.findall(
                     '<car_instance>(.*?)</car_instance>', data.read())[0]
                 self.label_17.setText(car_info)
-            except:
-                self.create_pop('打开defult.xml文件失败')
-                return
+            # try:
+            #     data = os.popen('cat /home/user/Data/car_instance/default.xml')
+            #     car_info = re.findall(
+            #         '<car_instance>(.*?)</car_instance>', data.read())[0]
+            #     self.label_17.setText(car_info)
+            # except:
+            #     self.create_pop('打开defult.xml文件失败')
+            #     return
         else:
             self.create_pop('创建/home/user/Data/car_instance/文件夹失败')
 
