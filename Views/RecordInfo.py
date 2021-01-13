@@ -209,8 +209,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 保存修改后的信息
         if self.listWidget.count():
             if self.listWidget.currentItem():
-                # car_name = re.findall(
-                #     '车辆信息 : (.*?)\n', self.listWidget.currentItem().text())[0]
                 car_name = self.label_17.text()
                 question_time = re.findall(
                     '问题时间 : (.*?)\n', self.listWidget.currentItem().text())[0]
