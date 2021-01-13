@@ -639,7 +639,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.timer.stop()
         try:
             data = os.popen(Generate_File_Path().base_path(
-                './Sh/pull_file.sh')+' '+self.filepath)
+                'Sh/pull_file.sh')+' '+self.filepath)
             data = str(data.read())
         except Exception as e:
             self.label_3.setText("Unknown Err")
@@ -1065,8 +1065,8 @@ class Record_Bag_Views(QDialog, Ui_RecordBag):
                 '"server_address">(.*)</rosparam>', f.read())
         subprocess.call(
             "sed -i 's/{}/{}/g' {}".format(server_address[0], ip, launchfile), shell=True)
-        os.popen(Generate_File_Path().base_path('./Sh/start_all.sh')+' ' +
-                 Generate_File_Path().base_path('./Sh/record_bag.sh')+' '+Generate_File_Path().base_path('./Sh/rviz_e.sh')+' '+filepath+' '+ip)
+        os.popen(Generate_File_Path().base_path('Sh/start_all.sh')+' ' +
+                 Generate_File_Path().base_path('Sh/record_bag.sh')+' '+Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+filepath+' '+ip)
         sleep(1)
         self.close()
 
@@ -1256,5 +1256,6 @@ class Generate_File_Path(object):
         if getattr(sys, 'frozen', None):
             basedir = sys._MEIPASS
         else:
-            basedir = os.path.dirname('.')
+            basedir = os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(basedir, path)
