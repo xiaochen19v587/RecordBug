@@ -74,9 +74,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
     def get_info(self):
         # 获取界面右侧填写的信息
         car_name = self.label_17.text()
-        # if not car_name:
-        #     self.create_pop('请获取车辆信息')
-        #     return
         question_time = self.label_3.text()
         test_type = self.comboBox_2.currentText()
         test_path = self.lineEdit.text()
@@ -102,14 +99,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 car_info = re.findall(
                     '<car_instance>(.*?)</car_instance>', data.read())[0]
                 self.label_17.setText(car_info)
-            # try:
-            #     data = os.popen('cat /home/user/Data/car_instance/default.xml')
-            #     car_info = re.findall(
-            #         '<car_instance>(.*?)</car_instance>', data.read())[0]
-            #     self.label_17.setText(car_info)
-            # except:
-            #     self.create_pop('打开defult.xml文件失败')
-            #     return
         else:
             self.create_pop('创建/home/user/Data/car_instance/文件夹失败')
 
