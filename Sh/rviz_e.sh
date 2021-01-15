@@ -1,10 +1,11 @@
+#!/bin/bash
 #######################################################################
 # File Name: mini_loc.sh
 # Author: ma6174
 # mail: ma6174@163.com
 # Created Time: 2019年04月05日 星期五 11时30分24秒
 #########################################################################
-#!/bin/bash
+
 
 # source /home/adama/catkin_ws/devel/setup.bash
 source $1/devel/setup.bash
