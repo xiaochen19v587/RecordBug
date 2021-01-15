@@ -409,6 +409,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         except:
             self.tableWidget.setItem(
                 self.tableWidget.currentRow(), 3, QTableWidgetItem('还没有进行测试'))
+            self.table_case_id[self.tableWidget.selectedItems()[0].text()] = 0
+            self.color_change(Qt.black)
             return
         info = ''
         for res in data.split('\n\n'):
@@ -417,13 +419,15 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if not info[-9:-8]:
             self.tableWidget.setItem(
                 self.tableWidget.currentRow(), 3, QTableWidgetItem('还没有进行测试'))
+            self.table_case_id[self.tableWidget.selectedItems()[0].text()] = 0
+            self.color_change(Qt.black)
         elif info[-9:-8] in ['1', '2', '3']:
             self.table_case_id[self.tableWidget.selectedItems()[
                 0].text()] = int(info[-9:-8])
             self.tableWidget.setItem(
                 self.tableWidget.currentRow(), 3, QTableWidgetItem('已进行过{}次测试'.format(self.table_case_id[self.tableWidget.selectedItems()[
                     0].text()])))
-            self.color_change()
+            self.color_change(Qt.red)
             self.textBrowser_6.setText(info)
 
     def test_save_info(self):
@@ -588,11 +592,11 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.create_pop('请添加问题')
             return
 
-    def color_change(self):
+    def color_change(self, color):
         # 改变测试用例的背景颜色
         for colum in range(4):
             self.tableWidget.item(
-                self.tableWidget.currentRow(), colum).setForeground(Qt.red)
+                self.tableWidget.currentRow(), colum).setForeground(color)
 # 第二界面
 
 # 第三界面
