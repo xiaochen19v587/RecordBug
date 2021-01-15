@@ -502,7 +502,7 @@
             <item>
              <widget class="QPushButton" name="pushButton_17">
               <property name="text">
-               <string>记录bag包</string>
+               <string>打开rviz</string>
               </property>
              </widget>
             </item>

@@ -349,7 +349,7 @@ class Ui_RecordBug(object):
         self.pushButton_3.setText(_translate("RecordBug", "拉取最新的DailyBuild"))
         self.pushButton_4.setText(_translate("RecordBug", "推送文件到板子中"))
         self.pushButton_9.setText(_translate("RecordBug", "拉取板子中的文件"))
-        self.pushButton_17.setText(_translate("RecordBug", "记录bag包"))
+        self.pushButton_17.setText(_translate("RecordBug", "打开rviz"))
         self.pushButton_19.setText(_translate("RecordBug", "刷写soc"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("RecordBug", "文件操作"))
 

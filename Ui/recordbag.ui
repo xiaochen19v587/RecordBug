@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RecordBag</class>
- <widget class="QDialog" name="RecordBag">
+ <class>OpenRviz</class>
+ <widget class="QDialog" name="OpenRviz">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>RecordBag</string>
+   <string>OpenRviz</string>
   </property>
   <property name="styleSheet">
    <string notr="true">font: 11pt &quot;Sans Serif&quot;;</string>
@@ -45,7 +45,7 @@
        <item>
         <widget class="QPushButton" name="pushButton">
          <property name="text">
-          <string>记录bag包</string>
+          <string>打开rviz</string>
          </property>
         </widget>
        </item>

@@ -15,7 +15,7 @@ from Ui_ScpPull import Ui_ScpPull
 from Ui_ChoosePush import Ui_ChoosePush
 from Ui_AdbPush import Ui_AdbPush
 from Ui_ScpPush import Ui_ScpPush
-from Ui_RecordBag import Ui_RecordBag
+from Ui_OpenRviz import Ui_OpenRviz
 from Ui_BrushSoc import Ui_BrushSoc
 
 
@@ -613,7 +613,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.choosepull.show()
 
     def record_bag(self):
-        self.recordbag = Record_Bag_Views()
+        self.recordbag = Open_Rviz_Views()
         self.recordbag.show()
 
     def brush_soc(self):
@@ -1124,9 +1124,9 @@ class Scp_Push_Views(QDialog, Ui_ScpPush):
             self.label_4.setText("文件推送成功")
 
 
-class Record_Bag_Views(QDialog, Ui_RecordBag):
+class Open_Rviz_Views(QDialog, Ui_OpenRviz):
     '''
-        记录bag包
+        打开Rviz
     '''
 
     def __init__(self):
@@ -1167,6 +1167,9 @@ class Record_Bag_Views(QDialog, Ui_RecordBag):
                 '"server_address">(.*)</rosparam>', f.read())
         subprocess.call(
             "sed -i 's/{}/{}/g' {}".format(server_address[0], ip, launchfile), shell=True)
+        # print(filepath)
+        # subprocess.Popen(args=[Generate_File_Path().base_path('Sh/rviz_e.sh'),filepath],shell=True,stdout=subprocess.PIPE)
+        # os.popen(Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+filepath)
         os.popen(Generate_File_Path().base_path('Sh/start_all.sh')+' ' +
                  Generate_File_Path().base_path('Sh/record_bag.sh')+' '+Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+filepath+' '+ip)
         sleep(1)
