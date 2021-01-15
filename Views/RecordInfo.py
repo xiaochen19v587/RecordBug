@@ -117,6 +117,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def record_info(self, err_info):
         '''
+        err_info:问题信息
         记录问题,重置右侧内容,设置记录成功的标记
         '''
         self.listWidget.addItem(err_info)
