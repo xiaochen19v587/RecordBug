@@ -1352,7 +1352,7 @@ class Find_File(object):
 
 class Generate_File_Path(object):
     '''
-        base_path:生成文件当前运行路径
+        生成文件当前运行路径
     '''
 
     def base_path(self, path):
