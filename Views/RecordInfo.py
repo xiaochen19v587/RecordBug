@@ -25,6 +25,11 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
     '''
 
     def __init__(self):
+        '''
+        初始化主界面,设置定时器用于显示时间,设置定时器状态time_count,设置第二界面问题保存标志pushButton_savecount
+        time_count 1 开始 0 暂停
+        pushButton_savecount 0 初始状态 1 2 3 对应当前测试次数 4 添加了问题 
+        '''
         super().__init__()
         self.setupUi(self)
         self.timer = QTimer(self)
@@ -44,6 +49,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.initUI()
 
     def initUI(self):
+        '''
+        设置问题保存路径,给按钮绑定事件,给下拉框绑定事件,给列表和表格绑定点击事件
+        '''
         self.test_type()
         self.file_path = '/home/user/Data/Record_Info'
         self.pushButton.clicked.connect(self.get_info)
@@ -72,7 +80,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
 # 第一界面
     def get_info(self):
-        # 获取界面右侧填写的信息
+        '''
+        car_name 车辆信息,question_time 问题时间,test_type 测试类型,test_path 测试路线,question_place 问题位置,
+        fault_rate 故障频率 question_describe 问题描述,err_info 详细问题记录
+        '''
         car_name = self.label_17.text()
         question_time = self.label_3.text()
         test_type = self.comboBox_2.currentText()
@@ -86,7 +97,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.record_info(err_info)
 
     def get_carinfo(self):
-        # 通过adb方式获取车辆信息
+        '''
+        创建default.xml文件文件保存路径,通过adb方式拉取default.xml,读取文件中的车辆信息
+        '''
         self.label_10.setText('')
         res = Mkdir_Path_Views().mkdir_file_path('/home/user/Data/car_instance/')
         if res:
@@ -103,13 +116,17 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.create_pop('创建/home/user/Data/car_instance/文件夹失败')
 
     def record_info(self, err_info):
-        # 记录问题,重置右侧内容,设置记录成功的标记
+        '''
+        记录问题,重置右侧内容,设置记录成功的标记
+        '''
         self.listWidget.addItem(err_info)
         self.clear_all()
         self.label_10.setText("记录成功")
 
     def clear_all(self):
-        # 重置界面右侧填写的所有信息
+        '''
+        重置界面右侧填写的所有信息
+        '''
         self.comboBox_2.setCurrentIndex(0)
         self.comboBox_3.setCurrentIndex(0)
         self.plainTextEdit.setPlainText('')
@@ -122,7 +139,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.label_10.setText("")
 
     def stop_time(self):
-        # 暂停和开始记录时间
+        '''
+        暂停和开始记录时间
+        '''
         if self.time_count:
             self.timer.stop()
             self.time_count = 0
@@ -135,7 +154,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.pushButton_14.setText("暂停")
 
     def show_time(self):
-        # 显示时间
+        '''
+        显示时间
+        '''
         try:
             datetime = QDateTime.currentDateTime()
             years = datetime.toString().split(' ')[-1]
@@ -152,14 +173,18 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 os._exit(0)
 
     def keyPressEvent(self, event):
-        # 键盘事件监听函数
+        '''
+        键盘事件监听函数, Esc 暂停和开始时间,Ctrl+c 关闭主界面窗口
+        '''
         if event.key() == Qt.Key_Escape:
             self.stop_time()
         if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_C:
             self.closeEvent(event)
 
     def save_info(self):
-        # 保存问题,设置问题记录保存成功标志
+        '''
+        将左侧问题记录中的所有信息保存到文件中,清除问题记录列表中所有信息
+        '''
         if self.listWidget.count():
             res = Mkdir_Path_Views().mkdir_file_path(self.file_path)
             if res:
@@ -175,7 +200,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.create_pop("没有问题记录")
 
     def test_type(self):
-        # 设置测试类型
+        '''
+        设置测试类型
+        '''
         self.comboBox_4.clear()
         if self.comboBox_2.currentText() == "接驾":
             err_list = ['接驾未完成', '过弯靠外侧', '过弯靠内侧', '障碍物误检测', '定位飘了', '其他']
@@ -191,7 +218,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.comboBox_4.addItems(err_list)
 
     def update_info(self, item):
-        # 将左侧问题记录显示在右侧对应位置
+        '''
+        将左侧问题记录中的信息显示在右侧对应位置
+        '''
         self.comboBox_2.setCurrentText(re.findall(
             '测试类型 : (.*?)\n', str(item.text()))[0])
         self.lineEdit.setText(re.findall(
@@ -206,7 +235,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             '问题描述 : (.*?)\n', str(item.text()))[0].split(' ')[1])
 
     def save_update(self):
-        # 保存修改后的信息
+        '''
+        保存修改后的信息,将右侧各个问题描述记录保存在右侧问题记录列表中
+        '''
         if self.listWidget.count():
             if self.listWidget.currentItem():
                 car_name = self.label_17.text()
@@ -229,7 +260,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.create_pop('没有问题记录')
 
     def create_pop(self, info):
-        # 设置提醒弹窗
+        '''
+        设置提醒弹窗
+        '''
         msg_box = QMessageBox(QMessageBox.Warning, '提示', info)
         msg_box.exec_()
 # 第一界面
@@ -237,8 +270,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 # 第二界面
     def open_xlsx(self):
         '''
-            记录xlsx表格中的信息
-            创建id case step result列表
+        读取xlsx文件中信息,格式化之后生成表格
+        创建id case step result列表
         '''
         if self.choosexlsxfile():
             return
@@ -266,13 +299,18 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.show_table()
 
     def list_append_value(self, cols_name_list, cols_index):
-        # 将表格中对应信息添加进对应列表
+        '''
+        将表格中对应信息添加进对应列表
+        '''
         for rows_index in range(self.table.nrows):
             cols_name_list.append(
                 self.table.cell_value(rows_index, cols_index))
 
     def choosexlsxfile(self):
-        # 文件选择窗口
+        '''
+        生成文件选择窗口
+        根据sheet名为测试用例读取表格
+        '''
         self.fileName_choose, filetype = QFileDialog.getOpenFileName(self,
                                                                      "选取文件",
                                                                      "/home/user/",
@@ -289,7 +327,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def show_table(self):
         '''
-            从对应列表中按顺序生成表格
+        从对应列表中按顺序生成表格,设置测试用例ID字典table_case_id,设置测试次数标志pushButton_count,初始化问题记录标志pushButton_savecount
+        table_case_id {'test_id1':1,'test_id2':0} index 测试用例id value 测试次数
         '''
         self.textBrowser_2.setText('')
         self.textBrowser_3.setText('')
@@ -314,7 +353,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
     def table_click(self):
-        # 选择表格,表格切换事件
+        '''
+        切换表格,判断pushButton_savecount,如果为0,直接切换(问题记录框没有信息),如果为1 2 3,清空问题记录框中的信息并切换(只选择测试次数没有添加测试问题),
+        如果为4,弹出提示框(问题记录框中已添加了问题)
+        '''
         if self.pushButton_savecount == 0:
             pass
         elif self.pushButton_savecount in [1, 2, 3]:
@@ -340,7 +382,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_savecount = 0
 
     def show_test_info(self):
-        # 显示测试信息
+        '''
+        显示测试信息,根据测试用例id读取测试步骤列表step_list和期望结果列表result_list中的内容添加到对应的显示框
+        '''
         self.plainTextEdit_2.setPlainText('')
         self.textBrowser_4.setPlainText('')
         for i in range(1, len(self.step_list)):
@@ -354,7 +398,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                     self.textBrowser_6.setText('')
 
     def err_list(self):
-        # 问题列表,显示文件中记录的问题
+        '''
+        问题列表,读取保存文件,根据当前选择的测试用例ID将文件中记录的问题分离,显示在对应的显示框
+        将table_case_id字典中索引对应的值修改为文件中的次数
+        '''
         try:
             with open('{}/case_problem.txt'.format(self.file_path), 'r')as f:
                 data = f.read()
@@ -379,7 +426,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.textBrowser_6.setText(info)
 
     def test_save_info(self):
-        # 记录测试问题
+        '''
+        记录测试问题,将右侧问题输入框中的内容记录在左侧问题显示框
+        '''
         try:
             self.tableWidget.selectedItems()[0].text()
         except:
@@ -391,7 +440,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.choose_test_pop()
 
     def test_save_pass(self):
-        # 记录测试问题为pass
+        '''
+        记录测试问题为pass,生成一条问题为pass的记录,记录在左侧问题显示框
+        '''
         try:
             self.tableWidget.selectedItems()[0].text()
         except:
@@ -402,7 +453,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.choose_test_pop()
 
     def test_save_fail(self):
-        # 记录测试问题为fail
+        '''
+        记录测试问题为fail,生成一条问题为fail的记录,记录在左侧问题显示框
+        '''
         try:
             self.tableWidget.selectedItems()[0].text()
         except:
@@ -413,7 +466,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.choose_test_pop()
 
     def choose_test_pop(self):
-        # 选择测试次数弹窗
+        '''
+        选择测试次数弹窗,根据table_case_id字典中的数据得到当前选择的测试用例已经测试的次数,进行弹窗显示
+        '''
         try:
             self.table_case_id[self.tableWidget.selectedItems()[
                 0].text()]
@@ -428,7 +483,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.create_pop('请选择测试次数')
 
     def change_info(self, err_info):
-        # 生成测试问题
+        '''
+        生成测试问题,根据测试用例ID,右侧问题时间,问题输入框的内容生成一条问题记录,修改pushButton_savecount为4
+        '''
         info = "测试用例ID : {}\n时间 : {}\n问题描述 : {}\n".format(
             self.tableWidget.selectedItems()[0].text(), self.label_13.text(), err_info)
         self.save_test_info(info)
@@ -436,7 +493,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_count = 0
 
     def save_test_info(self, info):
-        # 保存生成的测试问题
+        '''
+        将生成的测试问题记录在左侧问题显示框中,将右侧问题输入框中的内容清空,设置时间为开始状态
+        '''
         if self.textBrowser_4.toPlainText():
             info = self.textBrowser_4.toPlainText() + info
         else:
@@ -473,7 +532,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.count_for_test(3)
 
     def count_for_test(self, count):
-        # 生成当前测试的测试次数
+        '''
+        根据当前选择的table_case_id中的数据判断当前测试用例的测试次数,生成一条信息显示在左侧问题显示框中
+        设置pushButton_count为当前测试次数
+        '''
         try:
             self.table_case_id[self.tableWidget.selectedItems()[0].text()]
         except:
@@ -496,7 +558,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                     self.table_case_id[self.tableWidget.selectedItems()[0].text()]+1))
 
     def save_to_txt(self):
-        # 将测试问题保存在txt文件中
+        '''
+        将测试问题保存在txt文件中,将左侧问题显示框中的内容保存在文件中,根据pushButton_count设置table_case_id中
+        的数据,将pushButton_savecount设置为0(初始状态)
+        '''
         if self.textBrowser_4.toPlainText():
             try:
                 test_id = re.findall('测试用例ID : (.*?)\n',
@@ -617,7 +682,9 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.pushButton_3.clicked.connect(self.choosedir)
 
     def clicked_pull(self):
-        # 验证用户选择的文件夹是否是/home/user/
+        '''
+        验证用户选择的文件夹是否是/home/user/,验证成功之后调用pull()函数
+        '''
         if self.lineEdit.text() == '/home/user':
             pass
         else:
@@ -635,7 +702,9 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.timer.start(1)
 
     def pull(self):
-        # 运行pull_file.sh,拉取文件
+        '''
+        运行pull_file.sh,拉取文件,根据pull_file.sh脚本返回的结果判断文件拉取结果
+        '''
         self.timer.stop()
         try:
             data = os.popen(Generate_File_Path().base_path(
@@ -678,7 +747,9 @@ class Choose_Pull_Views(QDialog, Ui_ChoosePull):
         self.pushButton_2.clicked.connect(self.close)
 
     def choose_method(self):
-        # 选择拉取方式
+        '''
+        选择拉取方式
+        '''
         self.label_5.setText('')
         if self.radioButton.isChecked():
             self.label_3.setText('当前选择: 通过adb方式拉取文件')
@@ -686,7 +757,9 @@ class Choose_Pull_Views(QDialog, Ui_ChoosePull):
             self.label_3.setText('当前选择: 通过scp方式拉取文件')
 
     def check(self):
-        # 执行所选择拉取方式对应的函数
+        '''
+        执行所选择拉取方式对应的函数
+        '''
         if self.label_3.text():
             if self.radioButton.isChecked():
                 self.adb_pull()
@@ -724,7 +797,9 @@ class Adb_Pull_Views(QDialog, Ui_AdbPull):
         self.timer.timeout.connect(self.save_file)
 
     def choosedir(self):
-        # 选择文件夹
+        '''
+        选择文件夹
+        '''
         self.label_3.setText('')
         self.label_2.setText('')
         dir_choose = QFileDialog.getExistingDirectory(self,
@@ -735,7 +810,9 @@ class Adb_Pull_Views(QDialog, Ui_AdbPull):
         self.lineEdit.setText(dir_choose)
 
     def pull_file(self):
-        # 检测用户输入信息是否符合要求
+        '''
+        检测用户输入信息是否符合要求
+        '''
         self.label_3.setText('')
         self.label_2.setText('')
         filepath = self.lineEdit_2.text()
@@ -758,7 +835,9 @@ class Adb_Pull_Views(QDialog, Ui_AdbPull):
             self.label_2.setText('请输入拉取文件路径')
 
     def save_file(self):
-        # 拉取文件
+        '''
+        拉取文件
+        '''
         self.timer.stop()
         res = subprocess.call('adb pull {} {}'.format(
             self.filepath, self.savepath), shell=True)
@@ -796,7 +875,9 @@ class Scp_Pull_Views(QDialog, Ui_ScpPull):
         self.lineEdit_3.setText(dir_choose)
 
     def pulllog(self):
-        # 检测用户输入信息是否符合要求
+        '''
+        检测用户输入信息是否符合要求
+        '''
         self.label_3.setText("")
         self.label_4.setText("")
         host = self.lineEdit.text()
@@ -827,7 +908,9 @@ class Scp_Pull_Views(QDialog, Ui_ScpPull):
             self.label_3.setText('请输入正确的IP地址')
 
     def save_logfile(self, host, filepath, savepath):
-        # 创建timer,拉取文件
+        '''
+        创建timer定时器,拉取文件
+        '''
         res = subprocess.call("cd {}".format(savepath), shell=True)
         if res:
             self.label_3.setText("保存路径不是一个文件夹")
@@ -869,7 +952,9 @@ class Choose_Push_Views(QDialog, Ui_ChoosePush):
         self.pushButton_2.clicked.connect(self.close)
 
     def choose_method(self):
-        # 选择方式
+        '''
+        选择方式
+        '''
         self.label_5.setText('')
         if self.radioButton.isChecked():
             self.label_3.setText('当前选择: 通过adb方式推送文件')
@@ -877,7 +962,9 @@ class Choose_Push_Views(QDialog, Ui_ChoosePush):
             self.label_3.setText('当前选择: 通过scp方式推送文件')
 
     def check(self):
-        # 执行所选择方式对应的函数
+        '''
+        执行所选择方式对应的函数
+        '''
         if self.label_3.text():
             if self.radioButton.isChecked():
                 self.adb_push()
@@ -924,7 +1011,9 @@ class Adb_Push_Views(QDialog, Ui_AdbPush):
         self.lineEdit.setText(files)
 
     def pushfile(self):
-        # 检测用户输入信息是否符合要求
+        '''
+        检测用户输入信息是否符合要求
+        '''
         pushpath = self.lineEdit_2.text()
         filepath = self.lineEdit.text()
         self.label_2.setText('')
@@ -949,7 +1038,9 @@ class Adb_Push_Views(QDialog, Ui_AdbPush):
             self.label_2.setText("请输入目标路径")
 
     def push(self):
-        # 推送文件
+        '''
+        推送文件
+        '''
         self.timer.stop()
         res = subprocess.call('adb push {} {}'.format(
             self.filepath, self.pushpath), shell=True)
@@ -977,7 +1068,9 @@ class Scp_Push_Views(QDialog, Ui_ScpPush):
         self.timer.timeout.connect(self.push)
 
     def pushfile(self):
-        # 检测用户输入信息是否符合要求
+        '''
+        检测用户输入信息是否符合要求
+        '''
         self.label_3.setText("")
         self.label_4.setText("")
         host = self.lineEdit.text()
@@ -1010,7 +1103,9 @@ class Scp_Push_Views(QDialog, Ui_ScpPush):
         self.lineEdit_3.setText(files)
 
     def push(self):
-        # 推送文件
+        '''
+        推送文件
+        '''
         self.timer.stop()
         if os.path.isfile(self.filepath):
             res = subprocess.call(
@@ -1039,7 +1134,9 @@ class Record_Bag_Views(QDialog, Ui_RecordBag):
         self.pushButton_2.clicked.connect(self.close)
 
     def check_ip(self):
-        # 检测输入的ip地址是否符合要求
+        '''
+        检测输入的ip地址是否符合要求
+        '''
         self.label_2.setText('')
         address = self.lineEdit.text()
         if not address:
@@ -1054,8 +1151,8 @@ class Record_Bag_Views(QDialog, Ui_RecordBag):
 
     def record_bag(self, ip):
         '''
-            修改zros_dbg_dev_record中localization.launch中的ip
-            执行start_all.sh传入参数
+        修改zros_dbg_dev_record中localization.launch中的ip
+        执行start_all.sh传入参数
         '''
         f = Find_File()
         filepath = f.find_dir_path('zros_dbg_dev_record', '/home/user/')
@@ -1107,8 +1204,8 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
 
     def check_ip_tar(self):
         '''
-            检测用户输入的ip地址和选择的soc版本文件
-            创建timer计时器
+        检测用户输入的ip地址和选择的soc版本文件
+        创建timer计时器
         '''
         self.label_4.setText('')
         self.address = self.lineEdit.text()
@@ -1127,7 +1224,9 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         self.timer.start(1)
 
     def brush_soc(self):
-        # 检测板子中是否有原始文件
+        '''
+        检测板子中是否有原始文件
+        '''
         self.timer.stop()
         address = 'root@{}'.format(self.address)
         res = subprocess.call('cd /home/user/Data/car_instance/', shell=True)
@@ -1167,7 +1266,9 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
                 self.pushButton_3.setText('稍后重启')
 
     def push_tar(self, address):
-        # 刷写soc版本
+        '''
+        刷写soc版本
+        '''
         res = subprocess.call(
             'adb push -p {} /data/zros/'.format(self.tarfilepath), shell=True)
         if not res:
