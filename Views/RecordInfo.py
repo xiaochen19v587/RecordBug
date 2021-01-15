@@ -70,7 +70,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_14.clicked.connect(self.stop_time)
         self.pushButton_15.clicked.connect(self.test_save_pass)
         self.pushButton_16.clicked.connect(self.save_to_txt)
-        self.pushButton_17.clicked.connect(self.record_bag)
+        self.pushButton_17.clicked.connect(self.open_rviz)
         self.pushButton_18.clicked.connect(self.test_save_info)
         self.pushButton_19.clicked.connect(self.brush_soc)
         self.pushButton_20.clicked.connect(self.get_carinfo)
@@ -612,7 +612,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.choosepull = Choose_Pull_Views()
         self.choosepull.show()
 
-    def record_bag(self):
+    def open_rviz(self):
         self.recordbag = Open_Rviz_Views()
         self.recordbag.show()
 
@@ -1135,8 +1135,11 @@ class Open_Rviz_Views(QDialog, Ui_OpenRviz):
         self.initUi()
 
     def initUi(self):
-        self.pushButton.clicked.connect(self.check_ip)
+        self.ip = ''
+        self.filepath = ''
+        self.pushButton.clicked.connect(self.open_rviz)
         self.pushButton_2.clicked.connect(self.close)
+        self.pushButton_3.clicked.connect(self.record_bag)
 
     def check_ip(self):
         '''
@@ -1146,34 +1149,39 @@ class Open_Rviz_Views(QDialog, Ui_OpenRviz):
         address = self.lineEdit.text()
         if not address:
             self.label_2.setText('请输入ip地址')
-            return
+            return 0
         address_re = "^\d{3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
         res = re.findall(address_re, address)
         if not res:
             self.label_2.setText('输入ip格式错误')
-            return
-        self.record_bag(res[0])
+            return 0
+        self.ip = res[0]
+        return 1
 
-    def record_bag(self, ip):
+    def open_rviz(self):
         '''
         修改zros_dbg_dev_record中localization.launch中的ip
-        执行start_all.sh传入参数
+        执行open_rviz.sh传入参数
         '''
+        if not self.check_ip():
+            return
         f = Find_File()
-        filepath = f.find_dir_path('zros_dbg_dev_record', '/home/user/')
-        launchfile = f.find_file_path('localization.launch', filepath)[0]
+        self.filepath = f.find_dir_path('zros_dbg_dev_record', '/home/user/')
+        launchfile = f.find_file_path('localization.launch', self.filepath)[0]
         with open(launchfile, 'r') as f:
             server_address = re.findall(
                 '"server_address">(.*)</rosparam>', f.read())
         subprocess.call(
-            "sed -i 's/{}/{}/g' {}".format(server_address[0], ip, launchfile), shell=True)
-        # print(filepath)
-        # subprocess.Popen(args=[Generate_File_Path().base_path('Sh/rviz_e.sh'),filepath],shell=True,stdout=subprocess.PIPE)
-        # os.popen(Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+filepath)
-        os.popen(Generate_File_Path().base_path('Sh/start_all.sh')+' ' +
-                 Generate_File_Path().base_path('Sh/record_bag.sh')+' '+Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+filepath+' '+ip)
-        sleep(1)
-        self.close()
+            "sed -i 's/{}/{}/g' {}".format(server_address[0], self.ip, launchfile), shell=True)
+        os.popen(Generate_File_Path().base_path('Sh/open_rviz.sh')+' ' +
+                 Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+self.filepath)
+
+    def record_bag(self):
+        if not self.check_ip():
+            return
+        self.label_2.setText('')
+        os.popen(Generate_File_Path().base_path('Sh/open_record.sh')+' ' +
+                 Generate_File_Path().base_path('Sh/record_bag.sh')+' '+self.filepath+' ' + self.ip)
 
 
 class Brush_Soc_Views(QDialog, Ui_BrushSoc):

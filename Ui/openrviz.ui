@@ -50,6 +50,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="text">
+          <string>记录bag包</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="pushButton_2">
          <property name="text">
           <string>取消</string>

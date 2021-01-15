@@ -30,6 +30,6 @@ then
             mkdir -p $bagpath/$date/$carname
         fi
         cd $bagpath/$date/$carname
-        rosbag record -a -b 0 --split --duration 2m 
+        rosbag record -a
     fi
 fi
