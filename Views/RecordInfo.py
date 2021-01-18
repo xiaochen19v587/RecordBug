@@ -1363,7 +1363,7 @@ class Find_File(object):
 
     def find_file_path(self, filename, startdir):
         '''
-        filename:需要查找的文件名;stardir:开始查找的起始路径
+        filename:需要查找的文件名;startdir:开始查找的起始路径
         return:查找到的所有文件路径列表
         '''
         for root, dirs, names in os.walk(startdir, topdown=False):
@@ -1375,7 +1375,7 @@ class Find_File(object):
 
     def find_dir_path(self, dirname, startdir):
         '''
-        dirname:需要查找的文件夹名,startdir:开始查找的起始路径
+        dirname:需要查找的文件夹名;startdir:开始查找的起始路径
         retrun:查找到的所有文件夹路径的列表
         '''
         for root, dirs, names in os.walk(startdir):
