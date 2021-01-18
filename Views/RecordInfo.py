@@ -1,4 +1,5 @@
-# coding=utf-8
+#!/usr/bin/env python
+#coding=utf-8
 import os
 import sys
 import re
@@ -441,6 +442,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if self.pushButton_count:
             if self.plainTextEdit_2.toPlainText():
                 self.change_info(self.plainTextEdit_2.toPlainText())
+            else:
+                self.create_pop('请输入测试问题描述')
+                return
         else:
             self.choose_test_pop()
 
@@ -495,12 +499,15 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.selectedItems()[0].text(), self.label_13.text(), err_info)
         self.save_test_info(info)
         self.pushButton_savecount = 4
-        self.pushButton_count = 0
+        # self.pushButton_count = 0
 
     def save_test_info(self, info):
         '''
         将生成的测试问题记录在左侧问题显示框中,将右侧问题输入框中的内容清空,设置时间为开始状态
         '''
+        if not info:
+            self.create_pop('请输入问题描述')
+            return
         if self.textBrowser_4.toPlainText():
             info = self.textBrowser_4.toPlainText() + info
         else:
@@ -564,7 +571,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def save_to_txt(self):
         '''
-        将测试问题保存在txt文件中,将左侧问题显示框中的内容保存在文件中,根据pushButton_count设置table_case_id中
+        将测试问题保存在txt文件中,将左侧问题显示框中的内容保存在文件中,根据pushButton_count判断table_case_id中
         的数据,将pushButton_savecount设置为0(初始状态)
         '''
         if self.textBrowser_4.toPlainText():
@@ -593,7 +600,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             return
 
     def color_change(self, color):
-        # 改变测试用例的背景颜色
+        '''
+        改变测试用例的背景颜色
+        '''
         for colum in range(4):
             self.tableWidget.item(
                 self.tableWidget.currentRow(), colum).setForeground(color)
@@ -1161,11 +1170,12 @@ class Open_Rviz_Views(QDialog, Ui_OpenRviz):
     def record_bag(self):
         '''
             修改zros_dbg_dev_record中localization.launch中的ip
-            执行start_all.sh传入参数
+            执行start_all.sh 传入参数
         '''
         if not self.check_ip():
             return
-        launchfile = Find_File().find_file_path('localization.launch', self.filepath)[0]
+        launchfile = Find_File().find_file_path(
+            'localization.launch', self.filepath)[0]
         with open(launchfile, 'r') as f:
             server_address = re.findall(
                 '"server_address">(.*)</rosparam>', f.read())
