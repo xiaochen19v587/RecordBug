@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 import sip
 from PyQt5.QtWidgets import QApplication
