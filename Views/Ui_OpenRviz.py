@@ -35,9 +35,6 @@ class Ui_OpenRviz(object):
         self.pushButton = QtWidgets.QPushButton(OpenRviz)
         self.pushButton.setObjectName("pushButton")
         self.horizontalLayout.addWidget(self.pushButton)
-        self.pushButton_3 = QtWidgets.QPushButton(OpenRviz)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.horizontalLayout.addWidget(self.pushButton_3)
         self.pushButton_2 = QtWidgets.QPushButton(OpenRviz)
         self.pushButton_2.setObjectName("pushButton_2")
         self.horizontalLayout.addWidget(self.pushButton_2)
@@ -51,7 +48,6 @@ class Ui_OpenRviz(object):
         _translate = QtCore.QCoreApplication.translate
         OpenRviz.setWindowTitle(_translate("OpenRviz", "OpenRviz"))
         self.label.setText(_translate("OpenRviz", "输入板子ip地址:"))
-        self.pushButton.setText(_translate("OpenRviz", "打开rviz"))
-        self.pushButton_3.setText(_translate("OpenRviz", "记录bag包"))
+        self.pushButton.setText(_translate("OpenRviz", "打开rviz/记录bag包"))
         self.pushButton_2.setText(_translate("OpenRviz", "取消"))
 

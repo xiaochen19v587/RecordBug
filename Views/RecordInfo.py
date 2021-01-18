@@ -1137,9 +1137,9 @@ class Open_Rviz_Views(QDialog, Ui_OpenRviz):
     def initUi(self):
         self.ip = ''
         self.filepath = Find_File().find_dir_path('zros_dbg_dev_record', '/home/user/')
-        self.pushButton.clicked.connect(self.open_rviz)
+        self.pushButton.clicked.connect(self.record_bag)
         self.pushButton_2.clicked.connect(self.close)
-        self.pushButton_3.clicked.connect(self.record_bag)
+        # self.pushButton_3.clicked.connect(self.record_bag)
 
     def check_ip(self):
         '''
@@ -1158,12 +1158,10 @@ class Open_Rviz_Views(QDialog, Ui_OpenRviz):
         self.ip = res[0]
         return 1
 
-    def open_rviz(self):
+    def record_bag(self):
         '''
-        修改zros_dbg_dev_record中localization.launch中的ip
-        执行open_rviz.sh传入参数
-        第一个参数: rviz_e.sh运行路径
-        第二个参数:zors_dbg_dev_record文件目录
+            修改zros_dbg_dev_record中localization.launch中的ip
+            执行start_all.sh传入参数
         '''
         if not self.check_ip():
             return
@@ -1173,21 +1171,41 @@ class Open_Rviz_Views(QDialog, Ui_OpenRviz):
                 '"server_address">(.*)</rosparam>', f.read())
         subprocess.call(
             "sed -i 's/{}/{}/g' {}".format(server_address[0], self.ip, launchfile), shell=True)
-        os.popen(Generate_File_Path().base_path('Sh/open_rviz.sh')+' ' +
-                 Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+self.filepath)
+        os.popen(Generate_File_Path().base_path('Sh/start_all.sh')+' ' +
+                 Generate_File_Path().base_path('Sh/record_bag.sh')+' '+Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+self.filepath+' '+self.ip)
+        sleep(1)
+        self.close()
 
-    def record_bag(self):
-        '''
-        执行open_record.sh传入参数
-        第一个参数:record_bag.sh文件路径
-        第二个参数:zros_dbg_dev_record文件目录
-        第三个参数:self.lineEdit控件中输入的ip地址
-        '''
-        if not self.check_ip():
-            return
-        self.label_2.setText('')
-        os.popen(Generate_File_Path().base_path('Sh/open_record.sh')+' ' +
-                 Generate_File_Path().base_path('Sh/record_bag.sh')+' '+self.filepath+' ' + self.ip)
+    # def open_rviz(self):
+    #     '''
+    #     修改zros_dbg_dev_record中localization.launch中的ip
+    #     执行open_rviz.sh传入参数
+    #     第一个参数: rviz_e.sh运行路径
+    #     第二个参数:zors_dbg_dev_record文件目录
+    #     '''
+    #     if not self.check_ip():
+    #         return
+    #     launchfile = Find_File().find_file_path('localization.launch', self.filepath)[0]
+    #     with open(launchfile, 'r') as f:
+    #         server_address = re.findall(
+    #             '"server_address">(.*)</rosparam>', f.read())
+    #     subprocess.call(
+    #         "sed -i 's/{}/{}/g' {}".format(server_address[0], self.ip, launchfile), shell=True)
+    #     os.popen(Generate_File_Path().base_path('Sh/open_rviz.sh')+' ' +
+    #              Generate_File_Path().base_path('Sh/rviz_e.sh')+' '+self.filepath)
+
+    # def record_bag(self):
+    #     '''
+    #     执行open_record.sh传入参数
+    #     第一个参数:record_bag.sh文件路径
+    #     第二个参数:zros_dbg_dev_record文件目录
+    #     第三个参数:self.lineEdit控件中输入的ip地址
+    #     '''
+    #     if not self.check_ip():
+    #         return
+    #     self.label_2.setText('')
+    #     os.popen(Generate_File_Path().base_path('Sh/open_record.sh')+' ' +
+    #              Generate_File_Path().base_path('Sh/record_bag.sh')+' '+self.filepath+' ' + self.ip)
 
 
 class Brush_Soc_Views(QDialog, Ui_BrushSoc):
