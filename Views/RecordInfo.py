@@ -356,7 +356,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def table_click(self):
         '''
-        切换表格,判断pushButton_savecount,如果为0,直接切换(问题记录框没有信息),如果为1 2 3,清空问题记录框中的信息并切换(只选择测试次数没有添加测试问题),
+        切换表格,判断pushButton_savecount,如果为0,直接切换(问题记录框没有信息),如果为1 2 3,清空问题记录框中的信息并切换(只选择了测试次数没有添加测试问题),
         如果为4,弹出提示框(问题记录框中已添加了问题)
         '''
         if self.pushButton_savecount == 0:
