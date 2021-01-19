@@ -352,7 +352,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.setItem(case_index-1, 1, QTableWidgetItem(case))
             self.tableWidget.setItem(case_index-1, 2, QTableWidgetItem(path))
             self.tableWidget.setItem(case_index-1, 3, QTableWidgetItem(''))
-        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # 设置表格内容不可修改(导致表格内容显示不完全)
+        # self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
     def table_click(self):
         '''
@@ -499,7 +500,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.selectedItems()[0].text(), self.label_13.text(), err_info)
         self.save_test_info(info)
         self.pushButton_savecount = 4
-        # self.pushButton_count = 0
+        self.pushButton_count = 0
 
     def save_test_info(self, info):
         '''
@@ -804,11 +805,11 @@ class Adb_Pull_Views(QDialog, Ui_AdbPull):
         self.initUi()
 
     def initUi(self):
-        self.pushButton.clicked.connect(self.pull_file)
+        self.pushButton.clicked.connect(self.check_input)
         self.pushButton_2.clicked.connect(self.close)
         self.pushButton_3.clicked.connect(self.choosedir)
         self.timer = QTimer()
-        self.timer.timeout.connect(self.save_file)
+        self.timer.timeout.connect(self.pull_file)
 
     def choosedir(self):
         '''
@@ -823,7 +824,7 @@ class Adb_Pull_Views(QDialog, Ui_AdbPull):
             return
         self.lineEdit.setText(dir_choose)
 
-    def pull_file(self):
+    def check_input(self):
         '''
         检测用户输入信息是否符合要求
         '''
@@ -848,7 +849,7 @@ class Adb_Pull_Views(QDialog, Ui_AdbPull):
         else:
             self.label_2.setText('请输入拉取文件路径')
 
-    def save_file(self):
+    def pull_file(self):
         '''
         拉取文件
         '''
