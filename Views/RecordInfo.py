@@ -1230,7 +1230,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         self.setupUi(self)
         self.tarfilepath = ''
         self.address = ''
-        self.is_new = 0
+        self.default_existent = 1
         self.timer = QTimer()
         self.initUi()
 
@@ -1288,15 +1288,15 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             res = subprocess.call(
                 'timeout 3 ssh {} "rmdir /data/zros/"'.format(address), shell=True)
         if res:
-            self.is_new = 1
+            self.default_existent = 1
             res = subprocess.call(
                         'timeout 2 adb push {} /usr/bin/'.format(Generate_File_Path().base_path('Sh/killallnodes')), shell=True)
             if not res:
                 res = subprocess.call('timeout 3 scp {}:/data/zros/res/car_instance/default* /home/user/Data/car_instance/'.format(address), shell=True)
                 if not res:
-                    self.is_new = 1
+                    self.default_existent = 1
                 else:
-                    self.is_new = 0
+                    self.default_existent = 0
                 subprocess.call(
                     'timeout 2 ssh {} "killallnodes;cd /data/zros/;rm -r *"'.format(address), shell=True)
                 res=self.push_tar(address)
@@ -1311,7 +1311,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             else:
                 self.label_4.setText('请检查adb连接')
         else:
-            self.is_new=0
+            self.default_existent=0
             res=subprocess.call(
                 'timeout 3 ssh {} "mkdir /data/zros/"'.format(address), shell=True)
             res=self.push_tar(address)
@@ -1343,7 +1343,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             return 1
 
     def push_default(self, address):
-        if self.is_new:
+        if self.default_existent:
             res=subprocess.call(
                 'timeout 3 scp /home/user/Data/car_instance/default* {}:/data/zros/res/car_instance/'.format(address), shell=True)
             if not res:
