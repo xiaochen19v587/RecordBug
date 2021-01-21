@@ -29,7 +29,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         初始化主界面,设置定时器用于显示时间,设置定时器状态time_count,设置第二界面问题保存标志pushButton_savecount
         time_count 1 开始 0 暂停
-        pushButton_savecount 0 初始状态 1 2 3 对应当前测试次数 4 添加了问题 
+        pushButton_savecount 0 初始状态 1 2 3 对应当前测试次数 4 添加了问题
         '''
         super().__init__()
         self.setupUi(self)
@@ -727,6 +727,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             data = str(data.read())
         except Exception as e:
             self.label_3.setText("Unknown Err")
+            return
         if data.split('\n')[0] == "连接服务器失败...":
             self.label_3.setText(data.split('\n')[0])
         elif data.split('\n')[0][-2:] == "确定":
@@ -1229,6 +1230,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         self.setupUi(self)
         self.tarfilepath = ''
         self.address = ''
+        self.is_new = 0
         self.timer = QTimer()
         self.initUi()
 
@@ -1282,38 +1284,42 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         self.timer.stop()
         address = 'root@{}'.format(self.address)
         res = subprocess.call('cd /home/user/Data/car_instance/', shell=True)
-        if res:
-            res = subprocess.call(
-                'mkdir /home/user/Data/car_instance/', shell=True)
         if not res:
             res = subprocess.call(
-                'timeout 1 ssh {} "rmdir /data/zros/"'.format(address), shell=True)
+                'timeout 3 ssh {} "rmdir /data/zros/"'.format(address), shell=True)
         if res:
+            self.is_new = 1
             res = subprocess.call(
-                'timeout 1 adb pull /data/zros/res/car_instance/default.xml /home/user/Data/car_instance/', shell=True)
+                        'timeout 2 adb push {} /usr/bin/'.format(Generate_File_Path().base_path('Sh/killallnodes')), shell=True)
             if not res:
-                res = subprocess.call(
-                    'timeout 1 adb pull /data/zros/res/car_instance/defaultDevice /home/user/Data/car_instance/', shell=True)
+                res = subprocess.call('timeout 3 scp {}:/data/zros/res/car_instance/default* /home/user/Data/car_instance/'.format(address), shell=True)
                 if not res:
-                    res = subprocess.call(
-                        'timeout 1 ssh {} "killallnodes;cd /data/zros/;rm -r *"'.format(address), shell=True)
-                    if res:
-                        res = self.push_tar(address)
-                        if res:
-                            self.label_4.setText('刷写失败')
+                    self.is_new = 1
                 else:
-                    self.label_4.setText('default文件不存在')
+                    self.is_new = 0
+                subprocess.call(
+                    'timeout 2 ssh {} "killallnodes;cd /data/zros/;rm -r *"'.format(address), shell=True)
+                res=self.push_tar(address)
+                if res:
+                    print('\nError')
+                else:
+                    self.label_4.setText("刷写完成")
+                    print('\nSuccessful')
+                    self.pushButton_2.setText('立即重启')
+                    self.pushButton_3.setText('稍后重启')
+                
             else:
                 self.label_4.setText('请检查adb连接')
         else:
-            res = subprocess.call(
-                'timeout 1 ssh {} "mkdir /data/zros/"'.format(address), shell=True)
-            res = self.push_tar(address)
+            self.is_new=0
+            res=subprocess.call(
+                'timeout 3 ssh {} "mkdir /data/zros/"'.format(address), shell=True)
+            res=self.push_tar(address)
             if res:
-                pass
+                print('\nError')
             else:
                 self.label_4.setText('刷写完成')
-                print('\nsuccessful')
+                print('\nSuccessful')
                 self.pushButton_2.setText('立即重启')
                 self.pushButton_3.setText('稍后重启')
 
@@ -1321,30 +1327,38 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         '''
         刷写soc版本
         '''
-        res = subprocess.call(
+        res=subprocess.call(
             'adb push -p {} /data/zros/'.format(self.tarfilepath), shell=True)
         if not res:
-            res = subprocess.call(
+            res=subprocess.call(
                 'ssh {} "cd /data/zros/;tar -zxvf *"'.format(address), shell=True)
         else:
             self.label_4.setText('推送dailybuild失败,请检查adb连接')
             return 1
         if not res:
-            res = subprocess.call(
-                'timeout 1 scp /home/user/Data/car_instance/default* {}:/data/zros/res/car_instance/'.format(address), shell=True)
+            res=self.push_default(address)
+            return res
         else:
             self.label_4.setText('解压dailybuild失败,请查看板子内存是否足够')
             return 1
-        if not res:
-            return 0
+
+    def push_default(self, address):
+        if self.is_new:
+            res=subprocess.call(
+                'timeout 3 scp /home/user/Data/car_instance/default* {}:/data/zros/res/car_instance/'.format(address), shell=True)
+            if not res:
+                return 0
+            else:
+                self.label_4.setText('替换default.xml和defaultDevice文件失败')
+                return 1
         else:
-            self.label_4.setText('替换default.xml和defaultDevice文件失败')
+            self.label_4.setText('请手动替换default.xml和defaultDevice')
             return 1
 
     def reboot_now(self):
-        address = 'root@{}'.format(self.address)
+        address='root@{}'.format(self.address)
         subprocess.call(
-            'timeout 1 ssh {} "/sbin/reboot"'.format(address), shell=True)
+            'timeout 2 ssh {} "/sbin/reboot"'.format(address), shell=True)
         self.close()
 
 
@@ -1370,7 +1384,7 @@ class Find_File(object):
     '''
 
     def __init__(self):
-        self.file_path_list = []
+        self.file_path_list=[]
 
     def find_file_path(self, filename, startdir):
         '''
@@ -1380,7 +1394,7 @@ class Find_File(object):
         for root, dirs, names in os.walk(startdir, topdown=False):
             for fname in names:
                 if fname == filename:
-                    filepath = os.path.join(root, fname)
+                    filepath=os.path.join(root, fname)
                     self.file_path_list.append(filepath)
         return self.file_path_list
 
@@ -1392,7 +1406,7 @@ class Find_File(object):
         for root, dirs, names in os.walk(startdir):
             for dname in dirs:
                 if dname == dirname:
-                    dirpath = os.path.join(root, dname)
+                    dirpath=os.path.join(root, dname)
                     return dirpath
 
 
@@ -1407,8 +1421,8 @@ class Generate_File_Path(object):
         retrun:文件在不同运行环境中的路径
         '''
         if getattr(sys, 'frozen', None):
-            basedir = sys._MEIPASS
+            basedir=sys._MEIPASS
         else:
-            basedir = os.path.dirname(
+            basedir=os.path.dirname(
                 os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(basedir, path)

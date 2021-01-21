@@ -1,0 +1,16 @@
+#!/bin/sh
+
+SCRIPT_PATH=`dirname $0`
+. ${SCRIPT_PATH}/get_node_list
+
+for node in `node_list`
+do
+	echo -e "\033[36m Killing \033[0m [ \033[33m${node}\033[0m ]"
+	killall ${node}
+done
+
+for node in `cat ${SCRIPT_PATH}/base_node_list`
+do
+	echo -e "\033[35m Killing Base node \033[0m [ \033[33m${node}\033[0m ]"
+	killall ${node}
+done
