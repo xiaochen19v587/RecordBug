@@ -1310,7 +1310,6 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
                     print('\nSuccessful')
                     self.pushButton_2.setText('立即重启')
                     self.pushButton_3.setText('稍后重启')
-
             else:
                 self.label_4.setText('请检查adb连接')
         else:
