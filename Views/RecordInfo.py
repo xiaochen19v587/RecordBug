@@ -1294,6 +1294,8 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             res = subprocess.call(
                 'timeout 2 adb push {} /usr/bin/'.format(Generate_File_Path().base_path('Sh/killallnodes')), shell=True)
             if not res:
+                subprocess.call('timeout 2 adb push {} /usr/bin/'.format(
+                    Generate_File_Path().base_path('Sh/get_node_list')), shell=True)
                 res = subprocess.call(
                     'timeout 3 scp {}:/data/zros/res/car_instance/default* /home/user/Data/car_instance/'.format(address), shell=True)
                 if not res:

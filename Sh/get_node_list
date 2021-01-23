@@ -1,0 +1,38 @@
+#!/bin/sh
+
+export SYS_ARCH_UNAME=`uname --m`
+if [ "${SYS_ARCH_UNAME}" == "aarch64" ]
+then
+	echo "SYS aarch64"
+	export ZROS_ROOT="/data/zros"
+elif [ "${SYS_ARCH_UNAME}" == "x86_64" ]
+then
+	echo "SYS X86_64"
+	export ZROS_ROOT=`find . -name "mx86" -ls | tail -1 | dirname`
+else
+	echo "UNKNOWN SYS"
+fi
+
+echo "ZROS_ROOT [${ZROS_ROOT}]"
+export LAUNCHER_FILE_PATH="${ZROS_ROOT}/res/launcher/launcher_all.xml"
+export NODE_LIST_FILE="${ZROS_ROOT}/cache/enabled_node_list"
+
+
+node_list()
+{
+	cat ${LAUNCHER_FILE_PATH} \
+		| grep -v launcher \
+		| grep -v "xml version" \
+		| grep -v nodes \
+		| grep -v "<enable>0<\/enable>" \
+		| rev | cut -d\/ -f1 \
+		| rev | cut -d\> -f1 \
+		| sort -fb
+}
+
+#node_list > ${NODE_LIST_FILE}
+
+#echo "Enabled nodes:"
+#cat ${NODE_LIST_FILE}
+
+
