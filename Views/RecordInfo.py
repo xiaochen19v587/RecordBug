@@ -162,8 +162,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         try:
             datetime = QDateTime.currentDateTime()
             years = datetime.toString().split(' ')[-1]
-            days = datetime.toString().split(' ')[2]
             months = datetime.toString().split(' ')[1][0:2]
+            days = datetime.toString().split(' ')[2]
             times = datetime.toString().split(' ')[3]
             self.label_3.setText(
                 '{}年-{}-{}日 {}'.format(years, months, days, times))
@@ -171,6 +171,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 '{}年-{}-{}日 {}'.format(years, months, days, times))
         except BaseException as e:
             if isinstance(e, KeyboardInterrupt):
+                self.timer.stop()
+                os._exit(0)
+            else:
                 self.timer.stop()
                 os._exit(0)
 
