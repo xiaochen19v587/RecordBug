@@ -197,7 +197,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                     "问题记录已保存到{}/bug_file.txt".format(self.file_path))
                 self.listWidget.clear()
             else:
-                self.create_pop("创建{}文件夹失败".format(file_path))
+                self.create_pop("创建{}文件夹失败".format(self.file_path))
         else:
             self.create_pop("没有问题记录")
 
