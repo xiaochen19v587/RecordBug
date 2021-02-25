@@ -345,8 +345,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_count = 0
         for case_index in range(1, len(self.case_list)):
             self.table_case_id[self.id_list[case_index]] = 0
-            case = self.case_list[case_index].split('\n')[0]
             try:
+                case = self.case_list[case_index].split('\n')[0]
                 path = self.case_list[case_index].split('\n')[1][1:-1]
             except:
                 path = ''
