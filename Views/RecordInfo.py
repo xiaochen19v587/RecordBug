@@ -355,7 +355,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.setItem(case_index-1, 1, QTableWidgetItem(case))
             self.tableWidget.setItem(case_index-1, 2, QTableWidgetItem(path))
             self.tableWidget.setItem(case_index-1, 3, QTableWidgetItem(''))
-        # 设置表格内容不可修改(导致表格内容显示不完全)
+        # 设置表格内容不可修改(会导致表格内容显示不完全)
         # self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
     def table_click(self):
