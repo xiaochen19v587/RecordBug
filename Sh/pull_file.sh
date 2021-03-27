@@ -110,7 +110,8 @@ main(){
   # 定义本地文件路径和ftp文件路径
   com_file_path=$1
   # ftp_file_path="/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/zros_B_DropnGo_feature_mvp_dev/"
-  ftp_file_path='/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/zros_B_DropnGo_feature_mvp2.0_dev/'
+  # ftp_file_path='/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/zros_B_DropnGo_feature_mvp2.0_dev/'
+  ftp_file_path="/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/zros_B_DropnGo_stable/"
   # 判断ftp文件夹是否正确
   if `cd ${ftp_file_path}`
   then
