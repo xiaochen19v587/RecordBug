@@ -61,7 +61,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_4.clicked.connect(self.choose_push)
         self.pushButton_5.clicked.connect(self.save_update)
         self.pushButton_6.clicked.connect(self.save_info)
-        self.pushButton_7.clicked.connect(self.open_xlsx)
+        self.pushButton_7.clicked.connect(self.choosexlsxfile)
         self.pushButton_8.clicked.connect(self.stop_time)
         self.pushButton_9.clicked.connect(self.choose_pull)
         self.pushButton_10.clicked.connect(self.test_save_fail)
@@ -78,6 +78,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.comboBox_2.currentIndexChanged.connect(self.test_type)
         self.tableWidget.clicked.connect(self.table_click)
         self.listWidget.itemClicked.connect(self.update_info)
+        # self.comboBox.currentIndexChanged.connect(self.change_sheet)
+        # self.comboBox.currentTextChanged.connect(self.change_sheet)
 
 # 第一界面
     def get_info(self):
@@ -273,34 +275,42 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 # 第一界面
 
 # 第二界面
-    def open_xlsx(self):
+    def open_xlsx(self, method_code):
         '''
         读取xlsx文件中信息,格式化之后生成表格
         创建id case step result列表
         '''
-        if self.choosexlsxfile():
+        if method_code:
             return
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableWidget.setColumnCount(4)
-        self.tableWidget.setRowCount(self.table.nrows-1)
-        self.tableWidget.setHorizontalHeaderLabels(
-            ['测试用例ID', '测试用例', '测试路线', '测试次数'])
-        self.tableWidget.verticalHeader().setVisible(False)
-        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.id_list = []
+        self.precondition_list = []
         self.case_list = []
         self.step_list = []
         self.result_list = []
         for cols_index in range(self.table.ncols):
             cols_name = self.table.cell_value(0, cols_index)
-            if cols_name == '测试用例':
-                self.list_append_value(self.case_list, cols_index)
-            elif cols_name == "测试用例ID":
+            if cols_name == "测试用例ID":
                 self.list_append_value(self.id_list, cols_index)
+            elif cols_name == '前置条件':
+                self.list_append_value(self.precondition_list, cols_index)
+            elif cols_name == '测试用例':
+                self.list_append_value(self.case_list, cols_index)
             elif cols_name == '测试步骤':
                 self.list_append_value(self.step_list, cols_index)
             elif cols_name == '期望结果':
                 self.list_append_value(self.result_list, cols_index)
+        if not self.id_list and not self.case_list and not self.step_list and not self.result_list:
+            self.create_pop('选择文件格式错误')
+            return
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableWidget.horizontalHeader().setCascadingSectionResizes(
+            QHeaderView.ResizeToContents)
+        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setRowCount(self.table.nrows-1)
+        self.tableWidget.setHorizontalHeaderLabels(
+            ['测试用例ID', '前置条件', '测试用例', '测试次数'])
+        self.tableWidget.verticalHeader().setVisible(False)
+        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.show_table()
 
     def list_append_value(self, cols_name_list, cols_index):
@@ -321,14 +331,28 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                                                                      "/home/user/",
                                                                      "Text Files (*.xlsx)")
         if self.fileName_choose == "":
-            return 1
+            self.open_xlsx(1)
         self.table_data = xlrd.open_workbook(
             self.fileName_choose)
+        # 选择的文件名
+        # print(self.fileName_choose.split('/')[-1])
+        self.comboBox.clear()
+        self.comboBox.addItems(self.table_data.sheet_names())
+        self.change_table(self.table_data.sheet_names()[0])
+        self.comboBox.currentTextChanged.connect(self.change_sheet)
+
+    def change_sheet(self):
+        self.table_click()
+        sheet_name = self.comboBox.currentText()
+        self.change_table(sheet_name)
+
+    def change_table(self, sheet_name):
         try:
-            self.table = self.table_data.sheet_by_name("测试用例")
+            self.table = self.table_data.sheet_by_name(sheet_name)
         except:
-            self.create_pop('选择文件格式错误')
-            return 1
+            self.open_xlsx(1)
+        else:
+            self.open_xlsx(0)
 
     def show_table(self):
         '''
@@ -345,15 +369,19 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_count = 0
         for case_index in range(1, len(self.case_list)):
             self.table_case_id[self.id_list[case_index]] = 0
-            try:
-                case = self.case_list[case_index].split('\n')[0]
-                path = self.case_list[case_index].split('\n')[1][1:-1]
-            except:
-                path = ''
+            # 测试用例ID
             self.tableWidget.setItem(
                 case_index-1, 0, QTableWidgetItem(self.id_list[case_index]))
-            self.tableWidget.setItem(case_index-1, 1, QTableWidgetItem(case))
-            self.tableWidget.setItem(case_index-1, 2, QTableWidgetItem(path))
+            # 前置条件
+            if self.precondition_list:
+                self.tableWidget.setItem(
+                    case_index-1, 1, QTableWidgetItem(self.precondition_list[case_index]))
+            else:
+                self.tableWidget.setItem(case_index-1, 1, QTableWidgetItem(''))
+            # 测试用例
+            self.tableWidget.setItem(
+                case_index-1, 2, QTableWidgetItem(self.case_list[case_index]))
+            # 测试次数
             self.tableWidget.setItem(case_index-1, 3, QTableWidgetItem(''))
         # 设置表格内容不可修改(会导致表格内容显示不完全)
         # self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -579,6 +607,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         的数据,将pushButton_savecount设置为0(初始状态)
         '''
         if self.textBrowser_4.toPlainText():
+            # self.table_workbook = xlrd.open_workbook(self.fileName_choose,formatting_info=True)
+            # worksheet = self.table_workbook.sheet_by_name(self.comboBox.currentText())
+            # self.new_table_workbook = copy(self.table_workbook)
             try:
                 test_id = re.findall('测试用例ID : (.*?)\n',
                                      self.textBrowser_4.toPlainText())[0]
