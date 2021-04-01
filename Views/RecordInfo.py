@@ -47,6 +47,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 os._exit(0)
         self.time_count = 1
         self.pushButton_savecount = 0
+        self.fileName = ''
+        self.old_fileName_choose = ''
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
@@ -286,9 +288,11 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                                                                      "选取文件",
                                                                      "/home/user/",
                                                                      "Text Files (*.xls);Text Files (*.xlsx)")
-        self.old_fileName_choose = self.fileName_choose
         if self.fileName_choose == "":
             self.fileName_choose = self.old_fileName_choose
+            return
+        else:
+            self.old_fileName_choose = self.fileName_choose
         self.table_data = xlrd.open_workbook(
             self.fileName_choose)
         self.comboBox.clear()
@@ -335,16 +339,23 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 self.list_append_value(self.result_list, cols_index)
         if not self.id_list and not self.case_list and not self.step_list and not self.result_list:
             self.create_pop('选择文件格式错误')
-            return
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableWidget.horizontalHeader().setCascadingSectionResizes(
-            QHeaderView.ResizeToContents)
-        self.tableWidget.setColumnCount(4)
-        self.tableWidget.setRowCount(self.table.nrows-1)
-        self.tableWidget.setHorizontalHeaderLabels(
-            ['测试用例ID', '前置条件', '测试用例', '测试次数'])
-        self.tableWidget.verticalHeader().setVisible(False)
-        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+            if self.fileName == self.fileName_choose:
+                self.comboBox.setCurrentIndex(0)
+            else:
+                self.tableWidget.setRowCount(0)
+                self.tableWidget.setColumnCount(0)
+                return
+        else:
+            self.fileName = self.old_fileName_choose
+            self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.tableWidget.horizontalHeader().setCascadingSectionResizes(
+                QHeaderView.ResizeToContents)
+            self.tableWidget.setColumnCount(4)
+            self.tableWidget.setRowCount(self.table.nrows-1)
+            self.tableWidget.setHorizontalHeaderLabels(
+                ['测试用例ID', '前置条件', '测试用例', '测试次数'])
+            self.tableWidget.verticalHeader().setVisible(False)
+            self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def list_append_value(self, cols_name_list, cols_index):
         '''
