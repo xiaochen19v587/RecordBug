@@ -5,6 +5,8 @@ import sys
 import re
 import subprocess
 import xlrd
+import xlwt
+from xlutils.copy import copy
 from time import sleep
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -33,6 +35,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         super().__init__()
         self.setupUi(self)
+        self.log_file = '/home/user/Data/Record_Info/log_file.txt'
+        Mkdir_Path_Views().touch_file_path(self.log_file)
         self.timer = QTimer(self)
         try:
             self.timer.timeout.connect(self.show_time)
@@ -70,7 +74,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_13.clicked.connect(self.third_test)
         self.pushButton_14.clicked.connect(self.stop_time)
         self.pushButton_15.clicked.connect(self.test_save_pass)
-        self.pushButton_16.clicked.connect(self.save_to_txt)
+        self.pushButton_16.clicked.connect(self.save_to_excel)
         self.pushButton_17.clicked.connect(self.open_rviz)
         self.pushButton_18.clicked.connect(self.test_save_info)
         self.pushButton_19.clicked.connect(self.brush_soc)
@@ -78,8 +82,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.comboBox_2.currentIndexChanged.connect(self.test_type)
         self.tableWidget.clicked.connect(self.table_click)
         self.listWidget.itemClicked.connect(self.update_info)
-        # self.comboBox.currentIndexChanged.connect(self.change_sheet)
-        # self.comboBox.currentTextChanged.connect(self.change_sheet)
 
 # 第一界面
     def get_info(self):
@@ -275,6 +277,37 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 # 第一界面
 
 # 第二界面
+    def choosexlsxfile(self):
+        '''
+        生成文件选择窗口
+        根据sheet名为测试用例读取表格
+        '''
+        self.fileName_choose, filetype = QFileDialog.getOpenFileName(self,
+                                                                     "选取文件",
+                                                                     "/home/user/",
+                                                                     "Text Files (*.xls);Text Files (*.xlsx)")
+        if self.fileName_choose == "":
+            return
+        self.table_data = xlrd.open_workbook(
+            self.fileName_choose)
+        self.comboBox.clear()
+        self.comboBox.addItems(self.table_data.sheet_names())
+        self.change_table(self.table_data.sheet_names()[0])
+        self.comboBox.currentTextChanged.connect(self.change_sheet)
+
+    def change_sheet(self):
+        sheet_name = self.comboBox.currentText()
+        self.change_table(sheet_name)
+
+    def change_table(self, sheet_name):
+        try:
+            self.table = self.table_data.sheet_by_name(sheet_name)
+        except Exception as e:
+            self.open_xlsx(1)
+        else:
+            self.open_xlsx(0)
+            self.show_table(1)
+
     def open_xlsx(self, method_code):
         '''
         读取xlsx文件中信息,格式化之后生成表格
@@ -311,7 +344,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             ['测试用例ID', '前置条件', '测试用例', '测试次数'])
         self.tableWidget.verticalHeader().setVisible(False)
         self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.show_table()
 
     def list_append_value(self, cols_name_list, cols_index):
         '''
@@ -321,47 +353,17 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             cols_name_list.append(
                 self.table.cell_value(rows_index, cols_index))
 
-    def choosexlsxfile(self):
-        '''
-        生成文件选择窗口
-        根据sheet名为测试用例读取表格
-        '''
-        self.fileName_choose, filetype = QFileDialog.getOpenFileName(self,
-                                                                     "选取文件",
-                                                                     "/home/user/",
-                                                                     "Text Files (*.xlsx)")
-        if self.fileName_choose == "":
-            self.open_xlsx(1)
-        self.table_data = xlrd.open_workbook(
-            self.fileName_choose)
-        # 选择的文件名
-        # print(self.fileName_choose.split('/')[-1])
-        self.comboBox.clear()
-        self.comboBox.addItems(self.table_data.sheet_names())
-        self.change_table(self.table_data.sheet_names()[0])
-        self.comboBox.currentTextChanged.connect(self.change_sheet)
-
-    def change_sheet(self):
-        self.table_click()
-        sheet_name = self.comboBox.currentText()
-        self.change_table(sheet_name)
-
-    def change_table(self, sheet_name):
-        try:
-            self.table = self.table_data.sheet_by_name(sheet_name)
-        except:
-            self.open_xlsx(1)
-        else:
-            self.open_xlsx(0)
-
-    def show_table(self):
+    def show_table(self, method_code):
         '''
         从对应列表中按顺序生成表格,设置测试用例ID字典table_case_id,设置测试次数标志pushButton_count,初始化问题记录标志pushButton_savecount
         table_case_id {'test_id1':1,'test_id2':0} index 测试用例id value 测试次数
         '''
-        self.textBrowser_2.setText('')
-        self.textBrowser_3.setText('')
-        self.textBrowser_6.setText('')
+        if method_code:
+            self.textBrowser_2.setText('')
+            self.textBrowser_3.setText('')
+            self.textBrowser_6.setText('')
+        else:
+            pass
         self.plainTextEdit_2.setPlainText('')
         self.textBrowser_4.setPlainText('')
         self.table_case_id = {}
@@ -382,7 +384,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.setItem(
                 case_index-1, 2, QTableWidgetItem(self.case_list[case_index]))
             # 测试次数
-            self.tableWidget.setItem(case_index-1, 3, QTableWidgetItem(''))
+            if method_code:
+                self.tableWidget.setItem(case_index-1, 3, QTableWidgetItem(''))
         # 设置表格内容不可修改(会导致表格内容显示不完全)
         # self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
@@ -408,7 +411,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 buttonN.setText('不保存切换')
                 quitMsgBox.exec_()
                 if quitMsgBox.clickedButton() == buttonY:
-                    self.save_to_txt()
+                    self.save_to_excel()
                     return
         self.pushButton_count = 0
         self.show_test_info()
@@ -428,7 +431,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 try:
                     self.textBrowser_6.setText(
                         "测试次数:\n"+re.findall('完成(.*)复测', self.step_list[i])[0])
-                except:
+                except Exception as e:
                     self.textBrowser_6.setText('')
 
     def err_list(self):
@@ -437,31 +440,32 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         将table_case_id字典中索引对应的值修改为文件中的次数
         '''
         try:
-            with open('{}/case_problem.txt'.format(self.file_path), 'r')as f:
-                data = f.read()
-        except:
-            self.tableWidget.setItem(
-                self.tableWidget.currentRow(), 3, QTableWidgetItem('还没有进行测试'))
-            self.table_case_id[self.tableWidget.selectedItems()[0].text()] = 0
-            self.color_change(Qt.black)
-            return
-        info = ''
-        for res in data.split('\n\n'):
-            if self.tableWidget.selectedItems()[0].text() in res[5:20]:
-                info = info + res + '\n\n'
-        if not info[-9:-8]:
-            self.tableWidget.setItem(
-                self.tableWidget.currentRow(), 3, QTableWidgetItem('还没有进行测试'))
-            self.table_case_id[self.tableWidget.selectedItems()[0].text()] = 0
-            self.color_change(Qt.black)
-        elif info[-9:-8] in ['1', '2', '3']:
-            self.table_case_id[self.tableWidget.selectedItems()[
-                0].text()] = int(info[-9:-8])
-            self.tableWidget.setItem(
-                self.tableWidget.currentRow(), 3, QTableWidgetItem('已进行过{}次测试'.format(self.table_case_id[self.tableWidget.selectedItems()[
-                    0].text()])))
-            self.color_change(Qt.red)
-            self.textBrowser_6.setText(info)
+            test_id = self.tableWidget.selectedItems()[0].text()
+        except Exception as e:
+            self.create_pop("当前选择测试用例ID为空")
+        else:
+            res_rows_index, res_cols_index = self.get_rows_cols(test_id)
+            table_data = xlrd.open_workbook(self.fileName_choose)
+            table = table_data.sheet_by_name(self.comboBox.currentText())
+            data = table.cell_value(res_rows_index, res_cols_index)
+            info = ''
+            for res in data.split('\n\n'):
+                if self.tableWidget.selectedItems()[0].text() in res[5:20]:
+                    info = info + res + '\n\n'
+            if not info[-10:-9]:
+                self.tableWidget.setItem(
+                    self.tableWidget.currentRow(), 3, QTableWidgetItem('还没有进行测试'))
+                self.table_case_id[self.tableWidget.selectedItems()[
+                    0].text()] = 0
+                self.color_change(Qt.black)
+            elif info[-10:-9] in ['1', '2', '3']:
+                self.table_case_id[self.tableWidget.selectedItems()[
+                    0].text()] = int(info[-10:-9])
+                self.tableWidget.setItem(
+                    self.tableWidget.currentRow(), 3, QTableWidgetItem('已进行过{}次测试'.format(self.table_case_id[self.tableWidget.selectedItems()[
+                        0].text()])))
+                self.color_change(Qt.red)
+                self.textBrowser_6.setText(info)
 
     def test_save_info(self):
         '''
@@ -469,7 +473,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             self.tableWidget.selectedItems()[0].text()
-        except:
+        except Exception as e:
             return
         if self.pushButton_count:
             if self.plainTextEdit_2.toPlainText():
@@ -486,7 +490,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             self.tableWidget.selectedItems()[0].text()
-        except:
+        except Exception as e:
             return
         if self.pushButton_count:
             self.change_info('PASS')
@@ -499,7 +503,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             self.tableWidget.selectedItems()[0].text()
-        except:
+        except Exception as e:
             return
         if self.pushButton_count:
             self.change_info('FAIL')
@@ -513,7 +517,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         try:
             self.table_case_id[self.tableWidget.selectedItems()[
                 0].text()]
-        except:
+        except Exception as e:
             self.create_pop('当前选择测试用例ID为空')
             return
         if self.table_case_id[self.tableWidget.selectedItems()[
@@ -555,7 +559,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 第一次测试
         try:
             self.tableWidget.selectedItems()[0].text()
-        except:
+        except Exception as e:
             return
         self.count_for_test(1)
 
@@ -563,7 +567,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 第二测测试
         try:
             self.tableWidget.selectedItems()[0].text()
-        except:
+        except Exception as e:
             return
         self.count_for_test(2)
 
@@ -571,7 +575,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 第三次测试
         try:
             self.tableWidget.selectedItems()[0].text()
-        except:
+        except Exception as e:
             return
         self.count_for_test(3)
 
@@ -582,7 +586,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             self.table_case_id[self.tableWidget.selectedItems()[0].text()]
-        except:
+        except Exception as e:
             self.create_pop('当前选择测试用例ID为空')
             return
         if not self.tableWidget.selectedItems()[0].text():
@@ -594,33 +598,43 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 return
             if self.table_case_id[self.tableWidget.selectedItems()[0].text()] == count-1:
                 self.pushButton_count = count
-                self.textBrowser_4.setText("====={}第{}次=====\n".format(
+                self.textBrowser_4.setText("'====={}第{}次=====\n".format(
                     self.tableWidget.selectedItems()[0].text(), count))
                 self.pushButton_savecount = count
             else:
                 self.create_pop('请进行第{}次测试'.format(
                     self.table_case_id[self.tableWidget.selectedItems()[0].text()]+1))
 
-    def save_to_txt(self):
+    def save_to_excel(self):
         '''
-        将测试问题保存在txt文件中,将左侧问题显示框中的内容保存在文件中,根据pushButton_count判断table_case_id中
+        将测试问题保存在excel文件中,将左侧问题显示框中的内容保存在文件中,根据pushButton_count判断table_case_id中
         的数据,将pushButton_savecount设置为0(初始状态)
         '''
         if self.textBrowser_4.toPlainText():
-            # self.table_workbook = xlrd.open_workbook(self.fileName_choose,formatting_info=True)
-            # worksheet = self.table_workbook.sheet_by_name(self.comboBox.currentText())
-            # self.new_table_workbook = copy(self.table_workbook)
+            table_workbook = xlrd.open_workbook(self.fileName_choose)
+            new_workbook = copy(table_workbook)
+            styleS = xlwt.XFStyle()
+            alignment = xlwt.Alignment()
+            alignment.horz = xlwt.Alignment.HORZ_CENTER
+            alignment.vert = xlwt.Alignment.VERT_CENTER
+            styleS.alignment = alignment
+            new_worksheet = new_workbook.get_sheet(
+                self.comboBox.currentIndex())
             try:
                 test_id = re.findall('测试用例ID : (.*?)\n',
                                      self.textBrowser_4.toPlainText())[0]
-            except:
+            except Exception as e:
                 return
-            info = '{}{}\n\n'.format(
-                self.textBrowser_4.toPlainText(), "====={}第{}次=====".format(test_id, self.table_case_id[test_id]+1))
-            res = Mkdir_Path_Views().mkdir_file_path(self.file_path)
-            if res:
-                with open('{}/case_problem.txt'.format(self.file_path), 'a') as f:
-                    f.write(info)
+            res_rows_index, res_cols_index = self.get_rows_cols(test_id)
+            table_data = xlrd.open_workbook(self.fileName_choose)
+            table = table_data.sheet_by_name(self.comboBox.currentText())
+            data = table.cell_value(res_rows_index, res_cols_index)
+            if res_rows_index and res_cols_index:
+                info = data + '{}{}\n\n'.format(
+                    self.textBrowser_4.toPlainText(), "====={}第{}次====='".format(test_id, self.table_case_id[test_id]+1))
+                new_worksheet.write(res_rows_index, res_cols_index,
+                                    info, styleS)
+                new_workbook.save(self.fileName_choose)
                 if self.pushButton_count == 1:
                     self.table_case_id[test_id] = 1
                 elif self.pushButton_count == 2:
@@ -628,19 +642,37 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 elif self.pushButton_count == 3:
                     self.table_case_id[test_id] = 3
                 self.textBrowser_4.setText('')
-                self.err_list()
                 self.pushButton_savecount = 0
+                self.show_table(0)
+                self.err_list()
+            else:
+                self.create_pop("添加测试结果失败")
         else:
             self.create_pop('请添加问题')
             return
+
+    def get_rows_cols(self, test_id):
+        # 获取测试结果的列号和测试用例ID列号
+        for cols_index in range(self.table.ncols):
+            cols_name = self.table.cell_value(0, cols_index)
+            if cols_name == "测试结果":
+                res_cols_index = cols_index
+            if cols_name == "测试用例ID":
+                id_cols_index = cols_index
+        # 获取测试用例ID行号
+        for rows_index in range(self.table.nrows):
+            rows_name = self.table.cell_value(rows_index, id_cols_index)
+            if rows_name == test_id:
+                res_rows_index = rows_index
+        return res_rows_index, res_cols_index
 
     def color_change(self, color):
         '''
         改变测试用例的背景颜色
         '''
-        for colum in range(4):
-            self.tableWidget.item(
-                self.tableWidget.currentRow(), colum).setForeground(color)
+        # for colum in range(4):
+        self.tableWidget.item(
+            self.tableWidget.currentRow(), 3).setForeground(color)
 # 第二界面
 
 # 第三界面
@@ -687,7 +719,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def case_record(self, event):
         tips_msg = '你还没有保存用例记录,继续退出吗?'
-        self.quit_box(event, tips_msg, self.save_to_txt)
+        self.quit_box(event, tips_msg, self.save_to_excel)
 
     def quit_box(self, event, tips_msg, handle_fun):
         # 有问题记录没有保存的时候生成退出提醒框
@@ -1373,12 +1405,22 @@ class Mkdir_Path_Views(object):
         创建文件夹
     '''
 
-    def mkdir_file_path(self, file_path):
+    def mkdir_dir_path(self, dir_path):
+        '''
+        dir_path:需要创建的文件夹路径
+        return: 1 创建成功 0 创建失败
+        '''
+        if subprocess.call('mkdir -p {}'.format(dir_path), shell=True):
+            return 0
+        else:
+            return 1
+
+    def touch_file_path(self, file_path):
         '''
         file_path:需要创建的文件夹路径
         return: 1 创建成功 0 创建失败
         '''
-        if subprocess.call('mkdir -p {}'.format(file_path), shell=True):
+        if subprocess.call('touch {}'.format(file_path), shell=True):
             return 0
         else:
             return 1
