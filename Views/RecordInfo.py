@@ -302,7 +302,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
     def change_table(self, sheet_name):
         try:
             self.table = self.table_data.sheet_by_name(sheet_name)
-        except Exception as e:
+        except:
             self.open_xlsx(1)
         else:
             self.open_xlsx(0)
@@ -431,7 +431,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 try:
                     self.textBrowser_6.setText(
                         "测试次数:\n"+re.findall('完成(.*)复测', self.step_list[i])[0])
-                except Exception as e:
+                except:
                     self.textBrowser_6.setText('')
 
     def err_list(self):
@@ -441,7 +441,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             test_id = self.tableWidget.selectedItems()[0].text()
-        except Exception as e:
+        except:
             self.create_pop("当前选择测试用例ID为空")
         else:
             res_rows_index, res_cols_index = self.get_rows_cols(test_id)
@@ -473,7 +473,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             self.tableWidget.selectedItems()[0].text()
-        except Exception as e:
+        except:
             return
         if self.pushButton_count:
             if self.plainTextEdit_2.toPlainText():
@@ -490,7 +490,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             self.tableWidget.selectedItems()[0].text()
-        except Exception as e:
+        except:
             return
         if self.pushButton_count:
             self.change_info('PASS')
@@ -503,7 +503,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             self.tableWidget.selectedItems()[0].text()
-        except Exception as e:
+        except:
             return
         if self.pushButton_count:
             self.change_info('FAIL')
@@ -517,7 +517,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         try:
             self.table_case_id[self.tableWidget.selectedItems()[
                 0].text()]
-        except Exception as e:
+        except:
             self.create_pop('当前选择测试用例ID为空')
             return
         if self.table_case_id[self.tableWidget.selectedItems()[
@@ -559,7 +559,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 第一次测试
         try:
             self.tableWidget.selectedItems()[0].text()
-        except Exception as e:
+        except:
             return
         self.count_for_test(1)
 
@@ -575,7 +575,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 第三次测试
         try:
             self.tableWidget.selectedItems()[0].text()
-        except Exception as e:
+        except:
             return
         self.count_for_test(3)
 
@@ -586,7 +586,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         try:
             self.table_case_id[self.tableWidget.selectedItems()[0].text()]
-        except Exception as e:
+        except:
             self.create_pop('当前选择测试用例ID为空')
             return
         if not self.tableWidget.selectedItems()[0].text():
@@ -623,7 +623,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             try:
                 test_id = re.findall('测试用例ID : (.*?)\n',
                                      self.textBrowser_4.toPlainText())[0]
-            except Exception as e:
+            except:
                 return
             res_rows_index, res_cols_index = self.get_rows_cols(test_id)
             table_data = xlrd.open_workbook(self.fileName_choose)
@@ -793,7 +793,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             data = os.popen(Generate_File_Path().base_path(
                 'Sh/pull_file.sh')+' '+self.filepath)
             data = str(data.read())
-        except Exception as e:
+        except:
             self.label_3.setText("Unknown Err")
             return
         if data.split('\n')[0] == "连接服务器失败...":
