@@ -286,8 +286,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                                                                      "选取文件",
                                                                      "/home/user/",
                                                                      "Text Files (*.xls);Text Files (*.xlsx)")
+        self.old_fileName_choose = self.fileName_choose
         if self.fileName_choose == "":
-            return
+            self.fileName_choose = self.old_fileName_choose
         self.table_data = xlrd.open_workbook(
             self.fileName_choose)
         self.comboBox.clear()
@@ -567,7 +568,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 第二测测试
         try:
             self.tableWidget.selectedItems()[0].text()
-        except Exception as e:
+        except:
             return
         self.count_for_test(2)
 
