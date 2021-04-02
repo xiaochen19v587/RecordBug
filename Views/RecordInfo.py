@@ -289,9 +289,11 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                                                                      "/home/user/",
                                                                      "Text Files (*.xls);Text Files (*.xlsx)")
         if self.fileName_choose == "":
-            self.fileName_choose = self.old_fileName_choose
-            return
-        else:
+            if self.old_fileName_choose:
+                self.fileName_choose = self.old_fileName_choose
+            else:
+                return
+        elif self.fileName_choose:
             self.old_fileName_choose = self.fileName_choose
         self.table_data = xlrd.open_workbook(
             self.fileName_choose)
@@ -338,13 +340,13 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             elif cols_name == '期望结果':
                 self.list_append_value(self.result_list, cols_index)
         if not self.id_list and not self.case_list and not self.step_list and not self.result_list:
-            self.create_pop('选择文件格式错误')
-            if self.fileName == self.fileName_choose:
+            if self.fileName == self.old_fileName_choose:
                 self.comboBox.setCurrentIndex(0)
             else:
                 self.tableWidget.setRowCount(0)
                 self.tableWidget.setColumnCount(0)
-                return
+                self.comboBox.clear()
+            return
         else:
             self.fileName = self.old_fileName_choose
             self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
