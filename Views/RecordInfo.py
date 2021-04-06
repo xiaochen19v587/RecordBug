@@ -5,8 +5,7 @@ import sys
 import re
 import subprocess
 import xlrd
-import xlwt
-from xlutils.copy import copy
+from openpyxl import load_workbook
 from time import sleep
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -464,10 +463,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if not test_id:
             self.create_pop("当前选择测试用例ID为空")
         else:
-            res_rows_index, res_cols_index = self.get_rows_cols(test_id)
+            rows_index, cols_index = self.get_rows_cols(test_id)
             table_data = xlrd.open_workbook(self.fileName_choose)
             table = table_data.sheet_by_name(self.comboBox.currentText())
-            data = table.cell_value(res_rows_index, res_cols_index)
+            data = table.cell_value(rows_index, cols_index)
             info = ''
             for res in data.split('\n\n'):
                 if self.tableWidget.selectedItems()[0].text() in res[5:20]:
@@ -631,15 +630,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         的数据,将pushButton_savecount设置为0(初始状态)
         '''
         if self.textBrowser_4.toPlainText():
-            table_workbook = xlrd.open_workbook(self.fileName_choose)
-            new_workbook = copy(table_workbook)
-            styleS = xlwt.XFStyle()
-            alignment = xlwt.Alignment()
-            alignment.horz = xlwt.Alignment.HORZ_CENTER
-            alignment.vert = xlwt.Alignment.VERT_CENTER
-            styleS.alignment = alignment
-            new_worksheet = new_workbook.get_sheet(
-                self.comboBox.currentIndex())
+            workbook = load_workbook(self.fileName_choose)
+            workbook.active
+            new_worksheet = workbook[self.comboBox.currentText()]
             try:
                 test_id = re.findall('测试用例ID : (.*?)\n',
                                      self.textBrowser_4.toPlainText())[0]
@@ -652,9 +645,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             if res_rows_index and res_cols_index:
                 info = data + '{}{}\n\n'.format(
                     self.textBrowser_4.toPlainText(), "====={}第{}次====='".format(test_id, self.table_case_id[test_id]+1))
-                new_worksheet.write(res_rows_index, res_cols_index,
-                                    info, styleS)
-                new_workbook.save(self.fileName_choose)
+                new_worksheet.cell(
+                    res_rows_index+1, res_cols_index+1).value = info
+                workbook.save(self.fileName_choose)
                 if self.pushButton_count == 1:
                     self.table_case_id[test_id] = 1
                 elif self.pushButton_count == 2:
@@ -675,10 +668,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 获取测试结果的列号和测试用例ID列号
         for cols_index in range(self.table.ncols):
             cols_name = self.table.cell_value(0, cols_index)
-            if cols_name == "测试结果":
-                res_cols_index = cols_index
             if cols_name == "测试用例ID":
                 id_cols_index = cols_index
+            if cols_name == "测试结果":
+                res_cols_index = cols_index
         # 获取测试用例ID行号
         for rows_index in range(self.table.nrows):
             rows_name = self.table.cell_value(rows_index, id_cols_index)
