@@ -354,14 +354,15 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             return
         else:
             self.fileName = self.old_fileName_choose
-            self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-            self.tableWidget.horizontalHeader().setCascadingSectionResizes(
-                QHeaderView.ResizeToContents)
-            self.tableWidget.setColumnCount(4)
+            # 设置tablewidget的行数和列数
+            self.tableWidget.setColumnCount(3)
             self.tableWidget.setRowCount(self.table.nrows-1)
+            # 设置tablewidget顶部标题
             self.tableWidget.setHorizontalHeaderLabels(
-                ['测试用例ID', '前置条件', '测试用例', '测试次数'])
+                ['测试用例ID', '测试用例', '测试次数'])
+            # 设置行号隐藏
             self.tableWidget.verticalHeader().setVisible(False)
+            # 设置整行选中
             self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def list_append_value(self, cols_name_list, cols_index):
@@ -394,22 +395,25 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.setItem(
                 case_index-1, 0, QTableWidgetItem(self.id_list[case_index]))
             # 前置条件
-            if self.precondition_list:
-                self.tableWidget.setItem(
-                    case_index-1, 1, QTableWidgetItem(self.precondition_list[case_index]))
-            else:
-                self.tableWidget.setItem(case_index-1, 1, QTableWidgetItem(''))
+            # if self.precondition_list:
+            #     self.tableWidget.setItem(
+            #         case_index-1, 1, QTableWidgetItem(self.precondition_list[case_index]))
+            # else:
+            #     self.tableWidget.setItem(case_index-1, 1, QTableWidgetItem(''))
             # 测试用例
             self.tableWidget.setItem(
-                case_index-1, 2, QTableWidgetItem(self.case_list[case_index]))
+                case_index-1, 1, QTableWidgetItem(self.case_list[case_index]))
             # 测试次数
             if method_code:
-                self.tableWidget.setItem(case_index-1, 3, QTableWidgetItem(''))
+                self.tableWidget.setItem(case_index-1, 2, QTableWidgetItem(''))
         # 设置表格内容不可修改(会导致表格内容显示不完全)
-        # self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # 设置表格大小根据内容自适应
         self.tableWidget.resizeColumnsToContents()
         self.tableWidget.resizeRowsToContents()
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableWidget.horizontalHeader().setCascadingSectionResizes(
+            QHeaderView.ResizeToContents)
 
     def table_click(self):
         '''
@@ -475,7 +479,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                     info = info + res + '\n\n'
             if not info[-10:-9]:
                 self.tableWidget.setItem(
-                    self.tableWidget.currentRow(), 3, QTableWidgetItem('还没有进行测试'))
+                    self.tableWidget.currentRow(), 2, QTableWidgetItem('还没有进行测试'))
                 self.table_case_id[self.tableWidget.selectedItems()[
                     0].text()] = 0
                 self.color_change(Qt.black)
@@ -483,7 +487,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 self.table_case_id[self.tableWidget.selectedItems()[
                     0].text()] = int(info[-10:-9])
                 self.tableWidget.setItem(
-                    self.tableWidget.currentRow(), 3, QTableWidgetItem('已进行过{}次测试'.format(self.table_case_id[self.tableWidget.selectedItems()[
+                    self.tableWidget.currentRow(), 2, QTableWidgetItem('已进行过{}次测试'.format(self.table_case_id[self.tableWidget.selectedItems()[
                         0].text()])))
                 self.color_change(Qt.red)
                 self.textBrowser_6.setText(info)
@@ -693,7 +697,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         # for colum in range(4):
         self.tableWidget.item(
-            self.tableWidget.currentRow(), 3).setForeground(color)
+            self.tableWidget.currentRow(), 2).setForeground(color)
 # 第二界面
 
 # 第三界面
