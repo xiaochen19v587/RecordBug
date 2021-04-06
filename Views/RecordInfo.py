@@ -8,7 +8,6 @@ import xlrd
 from openpyxl import load_workbook
 from time import sleep
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
 from Ui_RecordInfo import Ui_RecordBug
 from Ui_PullFile import Ui_PullFile
@@ -403,7 +402,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 self.tableWidget.setItem(case_index-1, 2, QTableWidgetItem(''))
         # 设置表格内容不可修改(会导致表格内容显示不完全)
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        # QFont.setPointSize(14)
         # 设置表格大小根据内容自适应
         self.tableWidget.resizeColumnsToContents()
         self.tableWidget.resizeRowsToContents()
@@ -414,7 +412,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def table_click(self):
         '''
-        切换表格,判断pushButton_savecount,如果为0,直接切换(问题记录框没有信息),如果为1 2 3,清空问题记录框中的信息并切换(只选择了测试次数没有添加测试问题),
+        切换表格,判断pushButton_savecount,如果为0,直接切换(问题记录框没有信息);如果为1 2 3,清空问题记录框中的信息并切换(只选择了测试次数没有添加测试问题);
         如果为4,弹出提示框(问题记录框中已添加了问题)
         '''
         if self.pushButton_savecount == 0:
@@ -558,7 +556,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         info = "时间 : {}问题描述 : {}\n".format(err_time, err_info)
         self.save_test_info(info)
         self.pushButton_savecount = 4
-        self.pushButton_count = 0
 
     def save_test_info(self, info):
         '''
@@ -633,7 +630,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         将测试问题保存在excel文件中,将左侧问题显示框中的内容保存在文件中,根据pushButton_count判断table_case_id中
         的数据,将pushButton_savecount设置为0(初始状态)
         '''
-        if self.textBrowser_4.toPlainText():
+        if self.pushButton_savecount == 4:
             workbook = load_workbook(self.fileName_choose)
             workbook.active
             workbook.guess_types = True
