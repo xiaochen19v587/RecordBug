@@ -18,7 +18,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
-    <string notr="true">font: 11pt &quot;Sans Serif&quot;;</string>
+    <string notr="true">font: 10pt &quot;Sans Serif&quot;;</string>
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
@@ -304,6 +304,10 @@
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <item>
+               <widget class="QTextBrowser" name="textBrowser">
+               </widget>
+              </item>
               <item>
                <widget class="QTextBrowser" name="textBrowser_3"/>
               </item>

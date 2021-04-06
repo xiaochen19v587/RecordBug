@@ -8,6 +8,7 @@ import xlrd
 from openpyxl import load_workbook
 from time import sleep
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import *
 from Ui_RecordInfo import Ui_RecordBug
 from Ui_PullFile import Ui_PullFile
@@ -171,9 +172,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             days = datetime.toString().split(' ')[2]
             times = datetime.toString().split(' ')[3]
             self.label_3.setText(
-                '{}年-{}-{}日 {}'.format(years, months, days, times))
+                '{}年{}{}日 {}'.format(years, months, days, times))
             self.label_13.setText(
-                '{}年-{}-{}日 {}'.format(years, months, days, times))
+                '{}年{}{}日 {}'.format(years, months, days, times))
         except BaseException as e:
             if isinstance(e, KeyboardInterrupt):
                 self.timer.stop()
@@ -396,15 +397,17 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             #     self.tableWidget.setItem(case_index-1, 1, QTableWidgetItem(''))
             # 测试用例
             self.tableWidget.setItem(
-                case_index-1, 1, QTableWidgetItem(self.case_list[case_index]))
+                case_index-1, 1, QTableWidgetItem(self.case_list[case_index].split('\n')[0]))
             # 测试次数
             if method_code:
                 self.tableWidget.setItem(case_index-1, 2, QTableWidgetItem(''))
         # 设置表格内容不可修改(会导致表格内容显示不完全)
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # QFont.setPointSize(14)
         # 设置表格大小根据内容自适应
         self.tableWidget.resizeColumnsToContents()
         self.tableWidget.resizeRowsToContents()
+        # 设置表格铺满
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(
             QHeaderView.ResizeToContents)
@@ -444,10 +447,14 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         self.plainTextEdit_2.setPlainText('')
         self.textBrowser_4.setPlainText('')
+        case_list_data = ''
         for i in range(1, len(self.step_list)):
             if i == self.tableWidget.selectedItems()[0].row()+1:
                 self.textBrowser_3.setText("测试步骤:\n"+self.step_list[i])
                 self.textBrowser_2.setText("期望结果:\n"+self.result_list[i])
+                for i in range(1,len(self.case_list[i].split('\n'))):
+                    case_list_data += '\n' + self.case_list[i].split('\n')[i]
+                self.textBrowser.setText("测试用例:"+case_list_data)
                 try:
                     self.textBrowser_6.setText(
                         "测试次数:\n"+re.findall('完成(.*)复测', self.step_list[i])[0])
@@ -466,20 +473,16 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             rows_index, cols_index = self.get_rows_cols(test_id)
             table_data = xlrd.open_workbook(self.fileName_choose)
             table = table_data.sheet_by_name(self.comboBox.currentText())
-            data = table.cell_value(rows_index, cols_index)
-            info = ''
-            for res in data.split('\n\n'):
-                if self.tableWidget.selectedItems()[0].text() in res[5:20]:
-                    info = info + res + '\n\n'
-            if not info[-10:-9]:
+            info = table.cell_value(rows_index, cols_index)
+            if not info:
                 self.tableWidget.setItem(
                     self.tableWidget.currentRow(), 2, QTableWidgetItem('还没有进行测试'))
                 self.table_case_id[self.tableWidget.selectedItems()[
                     0].text()] = 0
                 self.color_change(Qt.black)
-            elif info[-10:-9] in ['1', '2', '3']:
+            elif info[-3:-2] in ['1', '2', '3']:
                 self.table_case_id[self.tableWidget.selectedItems()[
-                    0].text()] = int(info[-10:-9])
+                    0].text()] = int(info[-3:-2])
                 self.tableWidget.setItem(
                     self.tableWidget.currentRow(), 2, QTableWidgetItem('已进行过{}次测试'.format(self.table_case_id[self.tableWidget.selectedItems()[
                         0].text()])))
@@ -550,8 +553,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         生成测试问题,根据测试用例ID,右侧问题时间,问题输入框的内容生成一条问题记录,修改pushButton_savecount为4
         '''
-        info = "测试用例ID : {}\n时间 : {}\n问题描述 : {}\n".format(
-            self.tableWidget.selectedItems()[0].text(), self.label_13.text(), err_info)
+        err_time = self.label_13.text().split(
+            ' ')[0][5:] + self.label_13.text().split(' ')[1]
+        info = "时间 : {}问题描述 : {}\n".format(err_time, err_info)
         self.save_test_info(info)
         self.pushButton_savecount = 4
         self.pushButton_count = 0
@@ -617,7 +621,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 return
             if self.table_case_id[self.tableWidget.selectedItems()[0].text()] == count-1:
                 self.pushButton_count = count
-                self.textBrowser_4.setText("'====={}第{}次=====\n".format(
+                self.textBrowser_4.setText("{}第{}次\n".format(
                     self.tableWidget.selectedItems()[0].text(), count))
                 self.pushButton_savecount = count
             else:
@@ -632,9 +636,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if self.textBrowser_4.toPlainText():
             workbook = load_workbook(self.fileName_choose)
             workbook.active
+            workbook.guess_types = True
             new_worksheet = workbook[self.comboBox.currentText()]
             try:
-                test_id = re.findall('测试用例ID : (.*?)\n',
+                test_id = re.findall("(.*?)第",
                                      self.textBrowser_4.toPlainText())[0]
             except:
                 return
@@ -643,8 +648,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             table = table_data.sheet_by_name(self.comboBox.currentText())
             data = table.cell_value(res_rows_index, res_cols_index)
             if res_rows_index and res_cols_index:
-                info = data + '{}{}\n\n'.format(
-                    self.textBrowser_4.toPlainText(), "====={}第{}次====='".format(test_id, self.table_case_id[test_id]+1))
+                info = data + '{}{}\n'.format(
+                    self.textBrowser_4.toPlainText(), "{}第{}次".format(test_id, self.table_case_id[test_id]+1))
                 new_worksheet.cell(
                     res_rows_index+1, res_cols_index+1).value = info
                 workbook.save(self.fileName_choose)
