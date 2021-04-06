@@ -291,15 +291,19 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if self.fileName_choose == "":
             if self.old_fileName_choose:
                 self.fileName_choose = self.old_fileName_choose
-            else:
-                return
-        elif self.fileName_choose:
+            return
+        else:
             self.old_fileName_choose = self.fileName_choose
         self.table_data = xlrd.open_workbook(
             self.fileName_choose)
         self.comboBox.clear()
+        if "测试用例" in self.table_data.sheet_names():
+            # sheet_name = "测试用例"
+            return
+        else:
+            sheet_name = self.table_data.sheet_names()[0]
         self.comboBox.addItems(self.table_data.sheet_names())
-        self.change_table(self.table_data.sheet_names()[0])
+        self.change_table(sheet_name)
         self.comboBox.currentTextChanged.connect(self.change_sheet)
 
     def change_sheet(self):
@@ -453,9 +457,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         问题列表,读取保存文件,根据当前选择的测试用例ID将文件中记录的问题分离,显示在对应的显示框
         将table_case_id字典中索引对应的值修改为文件中的次数
         '''
-        try:
-            test_id = self.tableWidget.selectedItems()[0].text()
-        except:
+        test_id = self.tableWidget.selectedItems()[0].text()
+        if not test_id:
             self.create_pop("当前选择测试用例ID为空")
         else:
             res_rows_index, res_cols_index = self.get_rows_cols(test_id)
