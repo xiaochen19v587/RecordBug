@@ -297,11 +297,12 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.table_data = xlrd.open_workbook(
             self.fileName_choose)
         self.comboBox.clear()
-        if "测试用例" in self.table_data.sheet_names():
-            # sheet_name = "测试用例"
-            return
-        else:
-            sheet_name = self.table_data.sheet_names()[0]
+        # if "测试用例" in self.table_data.sheet_names():
+        #     # sheet_name = "测试用例"
+        #     return
+        # else:
+        #     sheet_name = self.table_data.sheet_names()[0]
+        sheet_name = self.table_data.sheet_names()[0]
         self.comboBox.addItems(self.table_data.sheet_names())
         self.change_table(sheet_name)
         self.comboBox.currentTextChanged.connect(self.change_sheet)
@@ -406,6 +407,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 self.tableWidget.setItem(case_index-1, 3, QTableWidgetItem(''))
         # 设置表格内容不可修改(会导致表格内容显示不完全)
         # self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # 设置表格大小根据内容自适应
+        self.tableWidget.resizeColumnsToContents()
+        self.tableWidget.resizeRowsToContents()
 
     def table_click(self):
         '''
