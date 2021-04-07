@@ -517,27 +517,31 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_count = 0
         self.show_test_info()
         self.err_list()
+        self.plainTextEdit_2.setPlainText('')
+        self.textBrowser_4.setPlainText('')
         self.pushButton_savecount = 0
 
     def show_test_info(self):
         '''
         显示测试信息,根据测试用例id读取测试步骤列表step_list和期望结果列表result_list中的内容添加到对应的显示框
         '''
-        self.plainTextEdit_2.setPlainText('')
-        self.textBrowser_4.setPlainText('')
         case_list_data = ''
-        for i in range(1, len(self.step_list)):
-            if i == self.tableWidget.selectedItems()[0].row()+1:
-                self.textBrowser_3.setText("测试步骤:\n"+self.step_list[i])
-                self.textBrowser_2.setText("期望结果:\n"+self.result_list[i])
-                for i in range(1, len(self.case_list[i].split('\n'))):
-                    case_list_data += '\n' + self.case_list[i].split('\n')[i]
-                self.textBrowser.setText("测试用例:"+case_list_data)
-                try:
-                    self.textBrowser_6.setText(
-                        "测试次数:\n"+re.findall('完成(.*)复测', self.step_list[i])[0])
-                except:
-                    self.textBrowser_6.setText('')
+        test_id = self.tableWidget.selectedItems()[0].text()
+        if not test_id:
+            # 如果没有测试用例id,将测试用例,测试步骤,期望结果,测试结果全部清空
+            self.textBrowser_3.setText('')
+            self.textBrowser_2.setText('')
+            self.textBrowser.setText('')
+            self.textBrowser_6.setText('')
+        else:
+            # 如果有测试用例id,在对应控件中显示对应的信息
+            for i in range(1, len(self.id_list)):
+                if self.id_list[i] == test_id:
+                    self.textBrowser_3.setText("测试步骤:\n"+self.step_list[i])
+                    self.textBrowser_2.setText("期望结果:\n"+self.result_list[i])
+                    for j in range(1, len(self.case_list[i].split('\n'))):
+                        case_list_data += '\n' + self.case_list[i].split('\n')[j]
+                    self.textBrowser.setText("测试用例:"+case_list_data)
 
     def err_list(self):
         '''
@@ -548,16 +552,22 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if not test_id:
             self.create_pop("当前选择测试用例ID为空")
         else:
-            rows_index, cols_index = self.get_rows_cols(test_id)
+            # 获取测试用例id对应的测试结果的行号和列号
+            res_rows_index, res_cols_index = self.get_rows_cols(test_id)
+            # 加载新的excel对象
             table_data = xlrd.open_workbook(self.fileName_choose)
             table = table_data.sheet_by_name(self.comboBox.currentText())
-            info = table.cell_value(rows_index, cols_index)
+            # 获取excel对象中当前选中测试用例的测试结果
+            info = table.cell_value(res_rows_index, res_cols_index)
             if not info:
+                # 如果数据为空
                 self.tableWidget.setItem(
                     self.tableWidget.currentRow(), 2, QTableWidgetItem('还没有进行测试'))
                 self.table_case_id[self.tableWidget.selectedItems()[
                     0].text()] = 0
                 self.color_change(Qt.black)
+                self.textBrowser_6.setText('')
+                # 如果数据存在
             elif info[-3:-2] in ['1', '2', '3']:
                 self.table_case_id[self.tableWidget.selectedItems()[
                     0].text()] = int(info[-3:-2])
@@ -764,7 +774,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         改变测试用例的背景颜色
         '''
-        # for colum in range(4):
         self.tableWidget.item(
             self.tableWidget.currentRow(), 2).setForeground(color)
 # 第二界面
