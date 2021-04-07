@@ -301,6 +301,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.change_table(sheet_name)
 
     def change_sheet(self):
+        # 测试用例选中的sheet发生变化
         sheet_name = self.comboBox.currentText()
         self.label_19.setText('')
         self.change_table(sheet_name)
