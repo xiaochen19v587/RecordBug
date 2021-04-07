@@ -373,6 +373,31 @@
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_8">
                 <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_20">
+                  <item>
+                   <widget class="QLabel" name="label_18">
+                    <property name="text">
+                     <string>测试进度:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_19">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_21">
+                    <property name="text">
+                     <string>获取</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_15">
                   <item>
                    <widget class="QLabel" name="label_12">
@@ -439,10 +464,7 @@
                <widget class="QComboBox" name="comboBox"/>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox_5">
-                <item>
-                </item>
-               </widget>
+               <widget class="QComboBox" name="comboBox_5"/>
               </item>
              </layout>
             </item>

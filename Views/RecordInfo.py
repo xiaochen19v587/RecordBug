@@ -299,11 +299,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.comboBox.addItems(self.table_data.sheet_names())
         sheet_name = self.table_data.sheet_names()[0]
         self.change_table(sheet_name)
-        self.comboBox.currentTextChanged.connect(self.change_sheet)
-        self.comboBox_5.currentTextChanged.connect(self.change_items)
 
     def change_sheet(self):
         sheet_name = self.comboBox.currentText()
+        self.label_19.setText('')
         self.change_table(sheet_name)
 
     def change_table(self, sheet_name):
@@ -383,6 +382,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.verticalHeader().setVisible(False)
             # 设置整行选中
             self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+            # 设置绑定事件
+            self.comboBox.currentTextChanged.connect(self.change_sheet)
+            self.comboBox_5.currentTextChanged.connect(self.change_items)
+            self.pushButton_21.clicked.connect(self.get_test_progress)
 
     def show_table(self, method_code, len_method):
         '''
@@ -467,6 +470,24 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                         if next_itme_name == self.all_itmes_list[i]:
                             stop_index = i
         self.start_stop_index = (start_index, stop_index)
+
+    def get_test_progress(self):
+        test_content_list = []
+        # 获取新的测试用例文件对象
+        table_data = xlrd.open_workbook(self.fileName_choose)
+        table = table_data.sheet_by_name(self.comboBox.currentText())
+        # 获取当前选择的测试用例文件中测试结果的列数
+        for cols_index in range(table.ncols):
+            cols_name = table.cell_value(0, cols_index)
+            if cols_name == '测试结果':
+                test_res_cols = cols_index
+        # 获取当前选择的测试用例文件中测试结果的内容
+        for rows_index in range(table.nrows):
+            rows_content = table.cell_value(rows_index, test_res_cols)
+            if rows_content:
+                test_content_list.append(rows_content)
+        self.label_19.setText(
+            str(len(test_content_list)-1)+'/'+str(len(self.id_list)-1))
 
     def table_click(self):
         '''
@@ -716,7 +737,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                     self.table_case_id[test_id] = 3
                 self.textBrowser_4.setText('')
                 self.pushButton_savecount = 0
-                self.show_table(0, 0)
                 self.err_list()
             else:
                 self.create_pop("添加测试结果失败")
