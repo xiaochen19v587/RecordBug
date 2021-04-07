@@ -300,6 +300,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         sheet_name = self.table_data.sheet_names()[0]
         self.change_table(sheet_name)
         self.comboBox.currentTextChanged.connect(self.change_sheet)
+        self.comboBox_5.currentTextChanged.connect(self.change_items)
 
     def change_sheet(self):
         sheet_name = self.comboBox.currentText()
@@ -312,7 +313,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.open_xlsx(1)
         else:
             self.open_xlsx(0)
-            self.show_table(1)
+            self.set_tablewidget_header()
+            self.show_table(1, 0)
 
     def open_xlsx(self, method_code):
         '''
@@ -322,42 +324,29 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if method_code:
             return
         self.id_list = []
-        self.precondition_list = []
         self.case_list = []
         self.step_list = []
         self.result_list = []
+        self.all_itmes_list = []
+        self.items_list = []
+        # 生成id_list,all_itmes_list,case_list,step_list,result_list
         for cols_index in range(self.table.ncols):
             cols_name = self.table.cell_value(0, cols_index)
             if cols_name == "测试用例ID":
                 self.list_append_value(self.id_list, cols_index)
-            elif cols_name == '前置条件':
-                self.list_append_value(self.precondition_list, cols_index)
+            elif cols_name == '测试项':
+                self.list_append_value(self.all_itmes_list, cols_index)
             elif cols_name == '测试用例':
                 self.list_append_value(self.case_list, cols_index)
             elif cols_name == '测试步骤':
                 self.list_append_value(self.step_list, cols_index)
             elif cols_name == '期望结果':
                 self.list_append_value(self.result_list, cols_index)
-        if not self.id_list and not self.case_list and not self.step_list and not self.result_list:
-            if self.fileName == self.old_fileName_choose:
-                self.comboBox.setCurrentIndex(0)
-            else:
-                self.tableWidget.setRowCount(0)
-                self.tableWidget.setColumnCount(0)
-                self.comboBox.clear()
-            return
-        else:
-            self.fileName = self.old_fileName_choose
-            # 设置tablewidget的行数和列数
-            self.tableWidget.setColumnCount(3)
-            self.tableWidget.setRowCount(self.table.nrows-1)
-            # 设置tablewidget顶部标题
-            self.tableWidget.setHorizontalHeaderLabels(
-                ['测试用例ID', '测试用例', '测试次数'])
-            # 设置行号隐藏
-            self.tableWidget.verticalHeader().setVisible(False)
-            # 设置整行选中
-            self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+        # 生成所有测试项的非空列表
+        self.items_list.append('测试项')
+        for itme_index in range(1, len(self.all_itmes_list)):
+            if self.all_itmes_list[itme_index]:
+                self.items_list.append(self.all_itmes_list[itme_index])
 
     def list_append_value(self, cols_name_list, cols_index):
         '''
@@ -367,39 +356,52 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             cols_name_list.append(
                 self.table.cell_value(rows_index, cols_index))
 
-    def show_table(self, method_code):
+    def set_tablewidget_header(self):
+        self.comboBox_5.clear()
+        self.comboBox_5.addItems(self.items_list)
+        # 如果id_list,case_list,step_list,result_list都为空,则清空所有内容(选择测试用例格式不正确)
+        if not self.id_list and not self.case_list and not self.step_list and not self.result_list:
+            if self.fileName == self.old_fileName_choose:
+                # 选择的excel文件没有变化
+                self.comboBox.setCurrentIndex(0)
+                self.comboBox_5.setCurrentIndex(1)
+            else:
+                # 选择的excel文件发生变化
+                self.tableWidget.setRowCount(0)
+                self.tableWidget.setColumnCount(0)
+                self.comboBox.clear()
+                self.comboBox_5.clear()
+            return
+        else:
+            self.fileName = self.old_fileName_choose
+            # 设置tablewidget的列数
+            self.tableWidget.setColumnCount(3)
+            # 设置tablewidget顶部标题
+            self.tableWidget.setHorizontalHeaderLabels(
+                ['测试用例ID', '测试用例', '测试次数'])
+            # 设置行号隐藏
+            self.tableWidget.verticalHeader().setVisible(False)
+            # 设置整行选中
+            self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+    def show_table(self, method_code, len_method):
         '''
         从对应列表中按顺序生成表格,设置测试用例ID字典table_case_id,设置测试次数标志pushButton_count,初始化问题记录标志pushButton_savecount
         table_case_id {'test_id1':1,'test_id2':0} index 测试用例id value 测试次数
         '''
         if method_code:
+            # sheet发生变化或者测试项发生变化
+            self.textBrowser.setText('')
             self.textBrowser_2.setText('')
             self.textBrowser_3.setText('')
             self.textBrowser_6.setText('')
-        else:
-            pass
         self.plainTextEdit_2.setPlainText('')
         self.textBrowser_4.setPlainText('')
         self.table_case_id = {}
         self.pushButton_savecount = 0
         self.pushButton_count = 0
-        for case_index in range(1, len(self.case_list)):
-            self.table_case_id[self.id_list[case_index]] = 0
-            # 测试用例ID
-            self.tableWidget.setItem(
-                case_index-1, 0, QTableWidgetItem(self.id_list[case_index]))
-            # 前置条件
-            # if self.precondition_list:
-            #     self.tableWidget.setItem(
-            #         case_index-1, 1, QTableWidgetItem(self.precondition_list[case_index]))
-            # else:
-            #     self.tableWidget.setItem(case_index-1, 1, QTableWidgetItem(''))
-            # 测试用例
-            self.tableWidget.setItem(
-                case_index-1, 1, QTableWidgetItem(self.case_list[case_index].split('\n')[0]))
-            # 测试次数
-            if method_code:
-                self.tableWidget.setItem(case_index-1, 2, QTableWidgetItem(''))
+        # 设置表格具体的内容和行数
+        self.show_table_content(method_code, len_method)
         # 设置表格内容不可修改(会导致表格内容显示不完全)
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # 设置表格大小根据内容自适应
@@ -409,6 +411,62 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(
             QHeaderView.ResizeToContents)
+
+    def show_table_content(self, method_code, len_method):
+        if len_method:
+            # 测试项发生变化
+            self.tableWidget.setRowCount(0)
+            table_length = self.start_stop_index[1]-self.start_stop_index[0]
+            start_index = self.start_stop_index[0]
+            stop_index = self.start_stop_index[1]
+        else:
+            # 测试项没有发生改变
+            table_length = len(self.case_list)-1
+            start_index = 1
+            stop_index = len(self.case_list)
+        count = 0
+        # 设置行数
+        self.tableWidget.setRowCount(table_length)
+        # 设置表格内容
+        for case_index in range(start_index, stop_index):
+            self.table_case_id[self.id_list[case_index]] = 0
+            # 测试用例ID
+            self.tableWidget.setItem(
+                count, 0, QTableWidgetItem(self.id_list[case_index]))
+            # 测试用例
+            self.tableWidget.setItem(
+                count, 1, QTableWidgetItem(self.case_list[case_index].split('\n')[0]))
+            # 测试次数
+            if method_code:
+                self.tableWidget.setItem(count, 2, QTableWidgetItem(''))
+            count += 1
+
+    def change_items(self):
+        # 测试项发生变化
+        if self.comboBox_5.currentText() != "测试项":
+            self.get_item_count()
+            self.show_table(1, 1)
+
+    def get_item_count(self):
+        start_index = 0
+        stop_index = 0
+        next_itme_name = 0
+        # 获取start_index
+        for i in range(1, len(self.all_itmes_list)):
+            if self.comboBox_5.currentText() == self.all_itmes_list[i]:
+                start_index = i
+        # 获取next_itme_name
+        for i in range(1, len(self.items_list)):
+            if self.comboBox_5.currentText() == self.items_list[i]:
+                if i+1 == len(self.items_list):
+                    self.create_pop('这是最后一个')
+                else:
+                    next_itme_name = self.items_list[i+1]
+        # 获取stop_index
+        for i in range(1, len(self.all_itmes_list)):
+            if next_itme_name == self.all_itmes_list[i]:
+                stop_index = i
+        self.start_stop_index = (start_index, stop_index)
 
     def table_click(self):
         '''
@@ -450,7 +508,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             if i == self.tableWidget.selectedItems()[0].row()+1:
                 self.textBrowser_3.setText("测试步骤:\n"+self.step_list[i])
                 self.textBrowser_2.setText("期望结果:\n"+self.result_list[i])
-                for i in range(1,len(self.case_list[i].split('\n'))):
+                for i in range(1, len(self.case_list[i].split('\n'))):
                     case_list_data += '\n' + self.case_list[i].split('\n')[i]
                 self.textBrowser.setText("测试用例:"+case_list_data)
                 try:
@@ -658,7 +716,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                     self.table_case_id[test_id] = 3
                 self.textBrowser_4.setText('')
                 self.pushButton_savecount = 0
-                self.show_table(0)
+                self.show_table(0, 0)
                 self.err_list()
             else:
                 self.create_pop("添加测试结果失败")

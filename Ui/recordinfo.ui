@@ -305,8 +305,7 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_17">
               <item>
-               <widget class="QTextBrowser" name="textBrowser">
-               </widget>
+               <widget class="QTextBrowser" name="textBrowser"/>
               </item>
               <item>
                <widget class="QTextBrowser" name="textBrowser_3"/>
@@ -438,6 +437,12 @@
               </item>
               <item>
                <widget class="QComboBox" name="comboBox"/>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_5">
+                <item>
+                </item>
+               </widget>
               </item>
              </layout>
             </item>
