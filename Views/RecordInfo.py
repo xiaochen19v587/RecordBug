@@ -459,13 +459,13 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         for i in range(1, len(self.items_list)):
             if self.comboBox_5.currentText() == self.items_list[i]:
                 if i+1 == len(self.items_list):
-                    self.create_pop('这是最后一个')
+                    stop_index = len(self.all_itmes_list)
                 else:
                     next_itme_name = self.items_list[i+1]
-        # 获取stop_index
-        for i in range(1, len(self.all_itmes_list)):
-            if next_itme_name == self.all_itmes_list[i]:
-                stop_index = i
+                    # 获取stop_index
+                    for i in range(1, len(self.all_itmes_list)):
+                        if next_itme_name == self.all_itmes_list[i]:
+                            stop_index = i
         self.start_stop_index = (start_index, stop_index)
 
     def table_click(self):
