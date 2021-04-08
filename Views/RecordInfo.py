@@ -293,17 +293,30 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             return
         else:
             self.old_fileName_choose = self.fileName_choose
+        # 设置绑定事件
+        self.comboBox.currentTextChanged.connect(self.change_sheet)
+        self.comboBox_5.currentTextChanged.connect(self.change_items)
+        self.pushButton_21.clicked.connect(self.get_test_progress)
+        # 创建新的excel对象
         table_data = xlrd.open_workbook(self.fileName_choose)
+        # 设置comboBox条目
         self.comboBox.clear()
         self.comboBox.addItems(table_data.sheet_names())
-        sheet_name = table_data.sheet_names()[0]
-        self.change_table(sheet_name)
 
     def change_sheet(self):
         # 测试用例选中的sheet发生变化
         sheet_name = self.comboBox.currentText()
+        if sheet_name == '':
+            return
         self.label_19.setText('')
         self.change_table(sheet_name)
+
+    def change_items(self):
+        # 测试项发生变化
+        if self.comboBox_5.currentText() != "测试项":
+            self.show_table(1, 1)
+        else:
+            self.show_table(1, 0)
 
     def change_table(self, sheet_name):
         table_data = xlrd.open_workbook(self.fileName_choose)
@@ -383,10 +396,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.verticalHeader().setVisible(False)
             # 设置整行选中
             self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-            # 设置绑定事件
-            self.comboBox.currentTextChanged.connect(self.change_sheet)
-            self.comboBox_5.currentTextChanged.connect(self.change_items)
-            self.pushButton_21.clicked.connect(self.get_test_progress)
 
     def show_table(self, sheet_change_code, item_change_code):
         '''
@@ -449,13 +458,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             if sheet_change_code:
                 self.tableWidget.setItem(count, 2, QTableWidgetItem(''))
             count += 1
-
-    def change_items(self):
-        # 测试项发生变化
-        if self.comboBox_5.currentText() != "测试项":
-            self.show_table(1, 1)
-        else:
-            self.show_table(1, 0)
 
     def get_item_count(self):
         start_index = 0
