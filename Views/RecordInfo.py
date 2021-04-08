@@ -83,6 +83,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.comboBox_2.currentIndexChanged.connect(self.test_type)
         self.tableWidget.clicked.connect(self.table_click)
         self.listWidget.itemClicked.connect(self.update_info)
+        self.comboBox.currentTextChanged.connect(self.change_sheet)
+        self.comboBox_5.currentTextChanged.connect(self.change_items)
+        self.pushButton_21.clicked.connect(self.get_test_progress)
 
 # 第一界面
     def get_info(self):
@@ -293,10 +296,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             return
         else:
             self.old_fileName_choose = self.fileName_choose
-        # 设置绑定事件
-        self.comboBox.currentTextChanged.connect(self.change_sheet)
-        self.comboBox_5.currentTextChanged.connect(self.change_items)
-        self.pushButton_21.clicked.connect(self.get_test_progress)
+
         # 创建新的excel对象
         table_data = xlrd.open_workbook(self.fileName_choose)
         # 设置comboBox条目
