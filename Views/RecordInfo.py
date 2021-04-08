@@ -473,22 +473,23 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.start_stop_index = (start_index, stop_index)
 
     def get_test_progress(self):
-        test_content_list = []
-        # 获取新的测试用例文件对象
-        table_data = xlrd.open_workbook(self.fileName_choose)
-        table = table_data.sheet_by_name(self.comboBox.currentText())
-        # 获取当前选择的测试用例文件中测试结果的列数
-        for cols_index in range(table.ncols):
-            cols_name = table.cell_value(0, cols_index)
-            if cols_name == '测试结果':
-                test_res_cols = cols_index
-        # 获取当前选择的测试用例文件中测试结果的内容
-        for rows_index in range(table.nrows):
-            rows_content = table.cell_value(rows_index, test_res_cols)
-            if rows_content:
-                test_content_list.append(rows_content)
-        self.label_19.setText(
-            str(len(test_content_list)-1)+'/'+str(len(self.id_list)-1))
+        if self.id_list:
+            test_content_list = []
+            # 获取新的测试用例文件对象
+            table_data = xlrd.open_workbook(self.fileName_choose)
+            table = table_data.sheet_by_name(self.comboBox.currentText())
+            # 获取当前选择的测试用例文件中测试结果的列数
+            for cols_index in range(table.ncols):
+                cols_name = table.cell_value(0, cols_index)
+                if cols_name == '测试结果':
+                    test_res_cols = cols_index
+            # 获取当前选择的测试用例文件中测试结果的内容
+            for rows_index in range(table.nrows):
+                rows_content = table.cell_value(rows_index, test_res_cols)
+                if rows_content:
+                    test_content_list.append(rows_content)
+            self.label_19.setText(
+                str(len(test_content_list)-1)+'/'+str(len(self.id_list)-1))
 
     def table_click(self):
         '''
