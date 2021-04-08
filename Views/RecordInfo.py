@@ -460,21 +460,21 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
     def get_item_count(self):
         start_index = 0
         stop_index = 0
-        next_item_name = 0
+        next_item_id = 0
         # 获取start_index
         for i in range(1, len(self.all_itmes_list)):
             if self.comboBox_5.currentText() == self.all_itmes_list[i]:
                 start_index = i
-        # 获取next_item_name
+        # 获取next_item_id
         for i in range(1, len(self.items_list)):
             if self.comboBox_5.currentText() == self.items_list[i]:
                 if i+1 == len(self.items_list):
                     stop_index = len(self.all_itmes_list)
                 else:
-                    next_item_name = self.items_list[i+1]
+                    next_item_id = self.items_list[i+1]
                     # 获取stop_index
                     for i in range(1, len(self.all_itmes_list)):
-                        if next_item_name == self.all_itmes_list[i]:
+                        if next_item_id == self.all_itmes_list[i]:
                             stop_index = i
         self.start_stop_index = (start_index, stop_index)
 
