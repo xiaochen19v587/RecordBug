@@ -319,6 +319,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.show_table(1, 0)
 
     def change_table(self, sheet_name):
+        '''
+            表格需要发生变化; 
+            sheet_name:需要打开的sheet
+        '''
         table_data = xlrd.open_workbook(self.fileName_choose)
         try:
             self.table = table_data.sheet_by_name(sheet_name)
@@ -331,8 +335,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def open_xlsx(self, method_code):
         '''
-        读取xlsx文件中信息,格式化之后生成表格
-        创建id case step result列表
+        读取xlsx文件中信息
+        生成id case step result列表
         '''
         if method_code:
             return
@@ -370,6 +374,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 self.table.cell_value(rows_index, cols_index))
 
     def set_tablewidget_header(self):
+        '''
+            设置tablewidget头部信息
+        '''
         self.comboBox_5.clear()
         self.comboBox_5.addItems(self.items_list)
         # 如果id_list,case_list,step_list,result_list都为空,则清空所有内容(选择测试用例格式不正确)
@@ -460,6 +467,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             count += 1
 
     def get_item_count(self):
+        '''
+            获取选中的测试项的数量,生成self.start_stop_index元组,
+            第一个元素代表当前选中的测试项的索引,第二个元素代表下一个测试项的索引
+        '''
         start_index = 0
         stop_index = 0
         next_item_name = 0
