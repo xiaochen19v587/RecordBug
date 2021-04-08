@@ -388,12 +388,12 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.comboBox_5.currentTextChanged.connect(self.change_items)
             self.pushButton_21.clicked.connect(self.get_test_progress)
 
-    def show_table(self, method_code, len_method):
+    def show_table(self, sheet_change_code, item_change_code):
         '''
-        从对应列表中按顺序生成表格,设置测试用例ID字典table_case_id,设置测试次数标志pushButton_count,初始化问题记录标志pushButton_savecount
-        table_case_id {'test_id1':1,'test_id2':0} index 测试用例id value 测试次数
+            sheet_change_code: 1 sheet发生改变 0 sheet没有发生变化;
+            item_change_code: 1 测试项发生改变 0 测试项没有发生变化
         '''
-        if method_code:
+        if sheet_change_code:
             # sheet发生变化或者测试项发生变化
             self.textBrowser.setText('')
             self.textBrowser_2.setText('')
@@ -405,7 +405,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_savecount = 0
         self.pushButton_count = 0
         # 设置表格具体的内容和行数
-        self.show_table_content(method_code, len_method)
+        self.show_table_content(sheet_change_code, item_change_code)
         # 设置表格内容不可修改(会导致表格内容显示不完全)
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # 设置表格大小根据内容自适应
@@ -416,10 +416,15 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(
             QHeaderView.ResizeToContents)
 
-    def show_table_content(self, method_code, len_method):
-        if len_method:
+    def show_table_content(self, sheet_change_code, item_change_code):
+        '''
+        sheet_change_code: 1 sheet发生改变 0 sheet没有发生变化
+        item_change_code: 1 测试项发生改变 0 测试项没有发生变化
+        '''
+        if item_change_code:
             # 测试项发生变化
             self.tableWidget.setRowCount(0)
+            self.get_item_count()
             table_length = self.start_stop_index[1]-self.start_stop_index[0]
             start_index = self.start_stop_index[0]
             stop_index = self.start_stop_index[1]
@@ -441,34 +446,35 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.tableWidget.setItem(
                 count, 1, QTableWidgetItem(self.case_list[case_index].split('\n')[0]))
             # 测试次数
-            if method_code:
+            if sheet_change_code:
                 self.tableWidget.setItem(count, 2, QTableWidgetItem(''))
             count += 1
 
     def change_items(self):
         # 测试项发生变化
         if self.comboBox_5.currentText() != "测试项":
-            self.get_item_count()
             self.show_table(1, 1)
+        else:
+            self.show_table(1, 0)
 
     def get_item_count(self):
         start_index = 0
         stop_index = 0
-        next_itme_name = 0
+        next_item_name = 0
         # 获取start_index
         for i in range(1, len(self.all_itmes_list)):
             if self.comboBox_5.currentText() == self.all_itmes_list[i]:
                 start_index = i
-        # 获取next_itme_name
+        # 获取next_item_name
         for i in range(1, len(self.items_list)):
             if self.comboBox_5.currentText() == self.items_list[i]:
                 if i+1 == len(self.items_list):
                     stop_index = len(self.all_itmes_list)
                 else:
-                    next_itme_name = self.items_list[i+1]
+                    next_item_name = self.items_list[i+1]
                     # 获取stop_index
                     for i in range(1, len(self.all_itmes_list)):
-                        if next_itme_name == self.all_itmes_list[i]:
+                        if next_item_name == self.all_itmes_list[i]:
                             stop_index = i
         self.start_stop_index = (start_index, stop_index)
 
