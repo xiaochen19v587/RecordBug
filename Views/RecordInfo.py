@@ -461,7 +461,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             # 测试用例
             self.tableWidget.setItem(
                 count, 1, QTableWidgetItem(self.case_list[case_index].split('\n')[0]))
-            # 测试次数
+            # 如果sheet发生变化
+            # 清空tablewidget测试次数列
             if sheet_change_code:
                 self.tableWidget.setItem(count, 2, QTableWidgetItem(''))
             count += 1
