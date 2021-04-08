@@ -174,7 +174,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 '{}年{}{}日 {}'.format(years, months, days, times))
             self.label_13.setText(
                 '{}年{}{}日 {}'.format(years, months, days, times))
-        except BaseException as e:
+        except KeyboardInterrupt as e:
             if isinstance(e, KeyboardInterrupt):
                 self.timer.stop()
                 os._exit(0)
