@@ -293,11 +293,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             return
         else:
             self.old_fileName_choose = self.fileName_choose
-        self.table_data = xlrd.open_workbook(
-            self.fileName_choose)
+        table_data = xlrd.open_workbook(self.fileName_choose)
         self.comboBox.clear()
-        self.comboBox.addItems(self.table_data.sheet_names())
-        sheet_name = self.table_data.sheet_names()[0]
+        self.comboBox.addItems(table_data.sheet_names())
+        sheet_name = table_data.sheet_names()[0]
         self.change_table(sheet_name)
 
     def change_sheet(self):
@@ -307,8 +306,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.change_table(sheet_name)
 
     def change_table(self, sheet_name):
+        table_data = xlrd.open_workbook(self.fileName_choose)
         try:
-            self.table = self.table_data.sheet_by_name(sheet_name)
+            self.table = table_data.sheet_by_name(sheet_name)
         except:
             self.open_xlsx(1)
         else:
@@ -541,7 +541,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                     self.textBrowser_3.setText("测试步骤:\n"+self.step_list[i])
                     self.textBrowser_2.setText("期望结果:\n"+self.result_list[i])
                     for j in range(1, len(self.case_list[i].split('\n'))):
-                        case_list_data += '\n' + self.case_list[i].split('\n')[j]
+                        case_list_data += '\n' + \
+                            self.case_list[i].split('\n')[j]
                     self.textBrowser.setText("测试用例:"+case_list_data)
 
     def err_list(self):
