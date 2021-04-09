@@ -745,6 +745,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if self.pushButton_savecount == 4:
             workbook = load_workbook(self.fileName_choose)
             workbook.active
+            # 识别excel单元格格式
             workbook.guess_types = True
             new_worksheet = workbook[self.comboBox.currentText()]
             try:
