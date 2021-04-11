@@ -34,6 +34,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         super().__init__()
         self.setupUi(self)
+        self.data_path = '/home/user/Data/'
+        Mkdir_Path_Views().mkdir_dir_path(self.data_path)
+        self.record_path = '/home/user/Data/Record_Info/'
+        Mkdir_Path_Views().mkdir_dir_path(self.record_path)
         self.log_file = '/home/user/Data/Record_Info/log_file.txt'
         Mkdir_Path_Views().touch_file_path(self.log_file)
         self.timer = QTimer(self)
@@ -110,7 +114,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         创建default.xml文件文件保存路径,通过adb方式拉取default.xml,读取文件中的车辆信息
         '''
         self.label_10.setText('')
-        res = Mkdir_Path_Views().mkdir_file_path('/home/user/Data/car_instance/')
+        res = Mkdir_Path_Views().touch_file_path('/home/user/Data/car_instance/')
         if res:
             res = subprocess.call(
                 'timeout 1 adb pull /data/zros/res/car_instance/default.xml /home/user/Data/car_instance/', shell=True)
@@ -199,7 +203,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         将左侧问题记录中的所有信息保存到文件中,清除问题记录列表中所有信息
         '''
         if self.listWidget.count():
-            res = Mkdir_Path_Views().mkdir_file_path(self.file_path)
+            res = Mkdir_Path_Views().touch_file_path(self.file_path)
             if res:
                 with open('{}/bug_file.txt'.format(self.file_path), 'a') as f:
                     for count in range(self.listWidget.count()):
