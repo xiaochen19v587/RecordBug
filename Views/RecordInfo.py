@@ -78,12 +78,12 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_18.clicked.connect(self.test_save_info)
         self.pushButton_19.clicked.connect(self.brush_soc)
         self.pushButton_20.clicked.connect(self.get_carinfo)
+        self.pushButton_21.clicked.connect(self.get_test_progress)
+        self.comboBox.currentTextChanged.connect(self.change_sheet)
         self.comboBox_2.currentIndexChanged.connect(self.test_type)
+        self.comboBox_5.currentTextChanged.connect(self.change_items)
         self.tableWidget.clicked.connect(self.table_click)
         self.listWidget.itemClicked.connect(self.update_info)
-        self.comboBox.currentTextChanged.connect(self.change_sheet)
-        self.comboBox_5.currentTextChanged.connect(self.change_items)
-        self.pushButton_21.clicked.connect(self.get_test_progress)
 
 # 第一界面
     def get_info(self):
