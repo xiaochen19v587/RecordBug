@@ -491,6 +491,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.start_stop_index = (start_index, stop_index)
 
     def get_test_progress(self):
+        try:
+            self.id_list
+        except:
+            return
         if self.id_list:
             test_content_list = []
             # 获取新的测试用例文件对象
@@ -740,6 +744,13 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         将测试问题保存在excel文件中,将左侧问题显示框中的内容保存在文件中,根据pushButton_count判断table_case_id中
         的数据,将pushButton_savecount设置为0(初始状态)
         '''
+        try:
+            self.table_case_id
+        except:
+            return
+        else:
+            if not self.table_case_id:
+                return
         if self.pushButton_savecount == 4:
             workbook = load_workbook(self.fileName_choose)
             workbook.active
