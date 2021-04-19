@@ -232,6 +232,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         将左侧问题记录中的信息显示在右侧对应位置
         '''
+        err_describe = ''
         self.comboBox_2.setCurrentText(re.findall(
             '测试类型 : (.*?)\n', str(item.text()))[0])
         self.lineEdit.setText(re.findall(
@@ -242,8 +243,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             '故障频率 : (.*?)\n', str(item.text()))[0])
         self.comboBox_4.setCurrentText(re.findall(
             '问题描述 : (.*?)\n', str(item.text()))[0].split(' ')[0])
-        self.plainTextEdit.setPlainText(re.findall(
-            '问题描述 : (.*?)\n', str(item.text()))[0].split(' ')[1])
+        for i in range(1, len(re.findall('问题描述 : (.*?)\n', str(item.text()))[0].split(' '))):
+            err_describe += re.findall('问题描述 : (.*?)\n',
+                                       str(item.text()))[0].split(' ')[i] + ' '
+        self.plainTextEdit.setPlainText(err_describe)
 
     def save_update(self):
         '''
