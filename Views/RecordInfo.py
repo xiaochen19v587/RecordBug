@@ -34,12 +34,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         super().__init__()
         self.setupUi(self)
-        # self.data_path = '/home/user/Data/'
-        # Mkdir_Path_Views().mkdir_dir_path(self.data_path)
-        # self.record_path = '/home/user/Data/Record_Info/'
-        # Mkdir_Path_Views().mkdir_dir_path(self.record_path)
-        # self.log_file = '/home/user/Data/Record_Info/log_file.txt'
-        # Mkdir_Path_Views().touch_file_path(self.log_file)
         self.timer = QTimer(self)
         try:
             self.timer.timeout.connect(self.show_time)
