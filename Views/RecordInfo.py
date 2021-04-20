@@ -828,8 +828,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def open_rviz(self):
         self.recordbag = Open_Rviz_Views()
-        self.filepath = Find_File().find_dir_path('zros_dbg_dev_record', '/home/user/')
-        if self.filepath:
+        filepath = Find_File().find_dir_path('zros_dbg_dev_record', '/home/user/')
+        if filepath:
             self.recordbag.show()
         else:
             self.create_pop('没有找到zros_dbg_dev_record')
@@ -1358,6 +1358,7 @@ class Open_Rviz_Views(QDialog, Ui_OpenRviz):
 
     def initUi(self):
         self.ip = ''
+        self.filepath = Find_File().find_dir_path('zros_dbg_dev_record', '/home/user/')
         self.pushButton.clicked.connect(self.record_bag)
         self.pushButton_2.clicked.connect(self.close)
 
