@@ -1461,8 +1461,8 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         检测板子中是否有原始文件
         '''
         self.timer.stop()
-        Mkdir_Path_Views().mkdir_dir_path('/home/user/Data/car_instance/')
         address = 'root@{}'.format(self.address)
+        Mkdir_Path_Views().mkdir_dir_path('/home/user/Data/car_instance/')
         subprocess.call('cd /home/user/Data/car_instance/', shell=True)
         res = subprocess.call(
             'timeout 3 ssh {} "rmdir /data/zros/"'.format(address), shell=True)
