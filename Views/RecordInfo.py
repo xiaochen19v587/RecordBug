@@ -941,6 +941,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             self.label_4.setText("文件拉取完成")
         elif data.split('\n')[0] == "已经有最新的DailyBuild...":
             self.label_3.setText(data.split('\n')[0])
+        self.pushButton_2.setText('完成')
 
     def choosedir(self):
         # 选择文件夹
