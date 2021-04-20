@@ -832,7 +832,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if filepath:
             self.recordbag.show()
         else:
-            self.create_pop('没有找到zros_dbg_dev_record')
+            self.create_pop('没有找到指定的rviz文件')
 
     def brush_soc(self):
         self.brushsoc = Brush_Soc_Views()
