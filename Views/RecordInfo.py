@@ -828,7 +828,11 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def open_rviz(self):
         self.recordbag = Open_Rviz_Views()
-        self.recordbag.show()
+        self.filepath = Find_File().find_dir_path('zros_dbg_dev_record', '/home/user/')
+        if self.filepath:
+            self.recordbag.show()
+        else:
+            self.create_pop('没有找到zros_dbg_dev_record')
 
     def brush_soc(self):
         self.brushsoc = Brush_Soc_Views()
@@ -1354,7 +1358,6 @@ class Open_Rviz_Views(QDialog, Ui_OpenRviz):
 
     def initUi(self):
         self.ip = ''
-        self.filepath = Find_File().find_dir_path('zros_dbg_dev_record', '/home/user/')
         self.pushButton.clicked.connect(self.record_bag)
         self.pushButton_2.clicked.connect(self.close)
 
@@ -1457,12 +1460,13 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         检测板子中是否有原始文件
         '''
         self.timer.stop()
+        Mkdir_Path_Views().mkdir_dir_path('/home/user/Data/car_instance/')
         address = 'root@{}'.format(self.address)
-        res = subprocess.call('cd /home/user/Data/car_instance/', shell=True)
-        if not res:
-            res = subprocess.call(
-                'timeout 3 ssh {} "rmdir /data/zros/"'.format(address), shell=True)
+        subprocess.call('cd /home/user/Data/car_instance/', shell=True)
+        res = subprocess.call(
+            'timeout 3 ssh {} "rmdir /data/zros/"'.format(address), shell=True)
         if res:
+            # 板子中/data/zros/文件夹不为空
             self.default_existent = 1
             res = subprocess.call(
                 'timeout 2 adb push {} /usr/bin/'.format(Generate_File_Path().base_path('Sh/killallnodes')), shell=True)
@@ -1488,6 +1492,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             else:
                 self.label_4.setText('请检查adb连接')
         else:
+            # 板子中/data/zros/文件夹为空
             self.default_existent = 0
             res = subprocess.call(
                 'timeout 3 ssh {} "mkdir /data/zros/"'.format(address), shell=True)
