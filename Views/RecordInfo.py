@@ -383,7 +383,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         # 如果id_list,case_list,step_list,result_list都为空,则清空所有内容(选择测试用例格式不正确)
         if not self.id_list and not self.case_list and not self.step_list and not self.result_list:
             if self.fileName == self.old_fileName_choose:
-                # 选择的excel文件没有变化
+                # 选择的excel文件没有变化,sheet发生变化
                 self.comboBox.setCurrentIndex(0)
                 self.comboBox_5.setCurrentIndex(0)
             else:
