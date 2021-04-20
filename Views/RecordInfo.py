@@ -385,7 +385,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             if self.fileName == self.old_fileName_choose:
                 # 选择的excel文件没有变化
                 self.comboBox.setCurrentIndex(0)
-                self.comboBox_5.setCurrentIndex(1)
+                self.comboBox_5.setCurrentIndex(0)
             else:
                 # 选择的excel文件发生变化
                 self.tableWidget.setRowCount(0)
