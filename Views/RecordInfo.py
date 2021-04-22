@@ -64,7 +64,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_4.clicked.connect(self.choose_push)
         self.pushButton_5.clicked.connect(self.save_update)
         self.pushButton_6.clicked.connect(self.save_info)
-        self.pushButton_7.clicked.connect(self.choosexlsxfile)
+        self.pushButton_7.clicked.connect(self.choose_xlsx_file)
         self.pushButton_8.clicked.connect(self.stop_time)
         self.pushButton_9.clicked.connect(self.choose_pull)
         self.pushButton_10.clicked.connect(self.test_save_fail)
@@ -282,7 +282,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 # 第一界面
 
 # 第二界面
-    def choosexlsxfile(self):
+    def choose_xlsx_file(self):
         '''
         生成文件选择窗口
         根据sheet名为测试用例读取表格
