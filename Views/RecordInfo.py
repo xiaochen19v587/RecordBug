@@ -384,10 +384,12 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if not self.id_list and not self.case_list and not self.step_list and not self.result_list:
             if self.fileName == self.old_fileName_choose:
                 # 选择的excel文件没有变化,sheet发生变化
+                self.create_pop('选择的sheet格式错误')
                 self.comboBox.setCurrentIndex(0)
                 self.comboBox_5.setCurrentIndex(0)
             else:
                 # 选择的excel文件发生变化
+                self.create_pop('选择的excel文件格式错误')
                 self.tableWidget.setRowCount(0)
                 self.tableWidget.setColumnCount(0)
                 self.comboBox.clear()
