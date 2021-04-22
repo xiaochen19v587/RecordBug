@@ -15,11 +15,11 @@ copy_file(){
   # 创建文件夹
   eval "mkdir ${com_file_path}${file_name}"
   # 拉取.tat.gz文件
-  eval "scp -r ${file_path}${file_arr[1]} ${com_file_path}${file_name}"
+  eval "scp -r ${file_path}${file_arr[0]} ${com_file_path}${file_name}"
   # 拉取sha256校验文件
-  eval "scp -r ${file_path}${file_arr[2]} ${com_file_path}${file_name}"
+  eval "scp -r ${file_path}${file_arr[1]} ${com_file_path}${file_name}"
   # 校验文件
-  check_file  ${file_arr[1]} ${file_arr[2]} ${com_file_path}${file_name}
+  check_file  ${file_arr[0]} ${file_arr[1]} ${com_file_path}${file_name}
 }
 
 
@@ -111,7 +111,7 @@ main(){
   com_file_path=$1
   # ftp_file_path="/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/zros_B_DropnGo_feature_mvp_dev/"
   # ftp_file_path='/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/zros_B_DropnGo_feature_mvp2.0_dev/'
-  ftp_file_path="/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/zros_B_DropnGo_stable/"
+  ftp_file_path="/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DropnGo_Release/"
   # 判断ftp文件夹是否正确
   if `cd ${ftp_file_path}`
   then
