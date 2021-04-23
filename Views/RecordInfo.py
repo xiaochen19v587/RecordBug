@@ -567,7 +567,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                 if self.id_list[i] == test_id:
                     self.textBrowser_3.setText("测试步骤:\n"+self.step_list[i])
                     self.textBrowser_2.setText("期望结果:\n"+self.result_list[i])
-                    for j in range(1, len(self.case_list[i].split('\n'))):
+                    for j in range(0, len(self.case_list[i].split('\n'))):
                         case_list_data += '\n' + \
                             self.case_list[i].split('\n')[j]
                     self.textBrowser.setText("测试用例:"+case_list_data)
