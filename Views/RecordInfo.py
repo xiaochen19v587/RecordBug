@@ -557,17 +557,17 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         test_id = self.tableWidget.selectedItems()[0].text()
         if not test_id:
             # 如果没有测试用例id,将测试用例,测试步骤,期望结果,测试结果全部清空
-            self.textBrowser_3.setText('')
-            self.textBrowser_2.setText('')
             self.textBrowser.setText('')
+            self.textBrowser_2.setText('')
+            self.textBrowser_3.setText('')
             self.textBrowser_6.setText('')
         else:
             # 如果有测试用例id,在对应控件中显示对应的信息
             for i in range(1, len(self.id_list)):
                 if self.id_list[i] == test_id:
-                    self.textBrowser_3.setText("测试步骤:\n" + self.step_list[i])
-                    self.textBrowser_2.setText("期望结果:\n" + self.result_list[i])
                     self.textBrowser.setText("测试用例:\n" + self.case_list[i])
+                    self.textBrowser_2.setText("期望结果:\n" + self.result_list[i])
+                    self.textBrowser_3.setText("测试步骤:\n" + self.step_list[i])
 
     def err_list(self):
         '''
