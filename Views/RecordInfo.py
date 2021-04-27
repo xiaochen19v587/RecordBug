@@ -602,6 +602,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                         0].text()])))
                 self.color_change(Qt.red)
                 self.textBrowser_6.setText(info)
+            else:
+                self.textBrowser_6.setText(info)
 
     def test_save_info(self):
         '''
@@ -1474,7 +1476,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
                 subprocess.call('timeout 2 adb push {} /usr/bin/'.format(
                     Generate_File_Path().base_path('Sh/get_node_list')), shell=True)
                 res = subprocess.call(
-                    'timeout 3 scp {}:/data/zros/res/car_instance/default* /home/user/Data/car_instance/'.format(address), shell=True)
+                    'timeout 3 scp -p {}:/data/zros/res/car_instance/default* /home/user/Data/car_instance/'.format(address), shell=True)
                 if not res:
                     self.default_existent = 1
                 else:
@@ -1535,7 +1537,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
                 return 1
         else:
             self.label_4.setText('请手动替换default.xml和defaultDevice')
-            return 1
+            return 0
 
     def reboot_now(self):
         address = 'root@{}'.format(self.address)
