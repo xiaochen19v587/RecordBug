@@ -35,14 +35,14 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         super().__init__()
         self.setupUi(self)
         self.timer = QTimer(self)
-        try:
-            self.timer.timeout.connect(self.show_time)
-            self.timer.start()
-        except BaseException as e:
-            if isinstance(e, KeyboardInterrupt):
-                self.timer.stop()
-                os._exit(0)
-        self.time_count = 1
+        # try:
+        #     self.timer.timeout.connect(self.show_time)
+        #     self.timer.start()
+        # except BaseException as e:
+        #     if isinstance(e, KeyboardInterrupt):
+        #         self.timer.stop()
+        #         os._exit(0)
+        # self.time_count = 1
         self.pushButton_savecount = 0
         self.fileName = ''
         self.old_fileName_choose = ''
@@ -65,13 +65,13 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_5.clicked.connect(self.save_update)
         self.pushButton_6.clicked.connect(self.save_info)
         self.pushButton_7.clicked.connect(self.choose_xlsx_file)
-        self.pushButton_8.clicked.connect(self.stop_time)
+        self.pushButton_8.clicked.connect(self.show_time)
         self.pushButton_9.clicked.connect(self.choose_pull)
         self.pushButton_10.clicked.connect(self.test_save_fail)
         self.pushButton_11.clicked.connect(self.first_test)
         self.pushButton_12.clicked.connect(self.second_test)
         self.pushButton_13.clicked.connect(self.third_test)
-        self.pushButton_14.clicked.connect(self.stop_time)
+        self.pushButton_14.clicked.connect(self.show_time)
         self.pushButton_15.clicked.connect(self.test_save_pass)
         self.pushButton_16.clicked.connect(self.save_to_excel)
         self.pushButton_17.clicked.connect(self.open_rviz)
@@ -140,55 +140,49 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.plainTextEdit.setPlainText('')
         self.lineEdit.setText('')
         self.lineEdit_2.setText('')
-        self.time_count = 1
-        self.timer.start()
-        self.pushButton_8.setText("暂停")
-        self.pushButton_14.setText("暂停")
+        self.label_3.setText("")
+        # self.time_count = 1
+        # self.timer.start()
+        # self.pushButton_8.setText("暂停")
+        # self.pushButton_14.setText("暂停")
         self.label_10.setText("")
+        self.label_13.setText("")
 
-    def stop_time(self):
-        '''
-        暂停和开始记录时间
-        '''
-        if self.time_count:
-            self.timer.stop()
-            self.time_count = 0
-            self.pushButton_8.setText("开始")
-            self.pushButton_14.setText("开始")
-        else:
-            self.timer.start()
-            self.time_count = 1
-            self.pushButton_8.setText("暂停")
-            self.pushButton_14.setText("暂停")
+    # def stop_time(self):
+    #     '''
+    #     暂停和开始记录时间
+    #     '''
+    #     if self.time_count:
+    #         self.timer.stop()
+    #         self.time_count = 0
+    #         self.pushButton_8.setText("开始")
+    #         self.pushButton_14.setText("开始")
+    #     else:
+    #         self.timer.start()
+    #         self.time_count = 1
+    #         self.pushButton_8.setText("暂停")
+    #         self.pushButton_14.setText("暂停")
 
     def show_time(self):
         '''
         显示时间
         '''
-        try:
-            datetime = QDateTime.currentDateTime()
-            years = datetime.toString().split(' ')[-1]
-            months = datetime.toString().split(' ')[1][0:2]
-            days = datetime.toString().split(' ')[2]
-            times = datetime.toString().split(' ')[3]
-            self.label_3.setText(
-                '{}年{}{}日 {}'.format(years, months, days, times))
-            self.label_13.setText(
-                '{}年{}{}日 {}'.format(years, months, days, times))
-        except KeyboardInterrupt as e:
-            if isinstance(e, KeyboardInterrupt):
-                self.timer.stop()
-                os._exit(0)
-            else:
-                self.timer.stop()
-                os._exit(0)
+        datetime = QDateTime.currentDateTime()
+        years = datetime.toString().split(' ')[-1]
+        months = datetime.toString().split(' ')[1][0:2]
+        days = datetime.toString().split(' ')[2]
+        times = datetime.toString().split(' ')[3]
+        self.label_3.setText(
+            '{}年{}{}日 {}'.format(years, months, days, times))
+        self.label_13.setText(
+            '{}年{}{}日 {}'.format(years, months, days, times))
 
     def keyPressEvent(self, event):
         '''
         键盘事件监听函数, Esc 暂停和开始时间,Ctrl+c 关闭主界面窗口
         '''
         if event.key() == Qt.Key_Escape:
-            self.stop_time()
+            self.show_time()
         if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_C:
             self.closeEvent(event)
 
@@ -671,8 +665,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         err_time = self.label_13.text().split(
             ' ')[0][5:] + self.label_13.text().split(' ')[1]
-        info = "时间 : {}问题描述 : {}\n".format(err_time, err_info)
+        info = "{}{}\n".format(err_time, err_info)
         self.save_test_info(info)
+        self.label_3.setText('')
+        self.label_13.setText('')
         self.pushButton_savecount = 4
 
     def save_test_info(self, info):
@@ -688,10 +684,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             info = info
         self.textBrowser_4.setPlainText(info)
         self.plainTextEdit_2.setPlainText('')
-        self.time_count = 1
-        self.timer.start()
-        self.pushButton_8.setText("暂停")
-        self.pushButton_14.setText("暂停")
+        # self.time_count = 1
+        # self.timer.start()
+        # self.pushButton_8.setText("暂停")
+        # self.pushButton_14.setText("暂停")
 
     def first_test(self):
         # 第一次测试

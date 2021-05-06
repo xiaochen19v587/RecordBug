@@ -98,7 +98,7 @@
             <item>
              <widget class="QPushButton" name="pushButton_8">
               <property name="text">
-               <string>暂停</string>
+               <string>获取当前时间</string>
               </property>
              </widget>
             </item>
@@ -416,7 +416,7 @@
                   <item>
                    <widget class="QPushButton" name="pushButton_14">
                     <property name="text">
-                     <string>暂停</string>
+                     <string>获取当前时间</string>
                     </property>
                    </widget>
                   </item>
