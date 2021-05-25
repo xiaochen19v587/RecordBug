@@ -61,12 +61,12 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton.clicked.connect(self.get_info)
         self.pushButton_2.clicked.connect(self.clear_all)
         self.pushButton_3.clicked.connect(self.pull_file)
-        self.pushButton_4.clicked.connect(self.choose_push)
+        # self.pushButton_4.clicked.connect(self.choose_push)
         self.pushButton_5.clicked.connect(self.save_update)
         self.pushButton_6.clicked.connect(self.save_info)
         self.pushButton_7.clicked.connect(self.choose_xlsx_file)
         self.pushButton_8.clicked.connect(self.show_time)
-        self.pushButton_9.clicked.connect(self.choose_pull)
+        # self.pushButton_9.clicked.connect(self.choose_pull)
         self.pushButton_10.clicked.connect(self.test_save_fail)
         self.pushButton_11.clicked.connect(self.first_test)
         self.pushButton_12.clicked.connect(self.second_test)
@@ -76,7 +76,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_16.clicked.connect(self.save_to_excel)
         self.pushButton_17.clicked.connect(self.open_rviz)
         self.pushButton_18.clicked.connect(self.test_save_info)
-        self.pushButton_19.clicked.connect(self.brush_soc)
+        # self.pushButton_19.clicked.connect(self.brush_soc)
         self.pushButton_20.clicked.connect(self.get_carinfo)
         self.pushButton_21.clicked.connect(self.get_test_progress)
         self.comboBox.currentTextChanged.connect(self.change_sheet)
@@ -663,8 +663,11 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         生成测试问题,根据测试用例ID,右侧问题时间,问题输入框的内容生成一条问题记录,修改pushButton_savecount为4
         '''
-        err_time = self.label_13.text().split(
-            ' ')[0][5:] + self.label_13.text().split(' ')[1]
+        if self.label_13.text():
+            err_time = self.label_13.text().split(
+                ' ')[0][5:] + self.label_13.text().split(' ')[1]
+        else:
+            err_time = ''
         info = "{}{}\n".format(err_time, err_info)
         self.save_test_info(info)
         self.label_3.setText('')
