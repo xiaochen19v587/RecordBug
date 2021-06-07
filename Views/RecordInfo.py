@@ -35,14 +35,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         super().__init__()
         self.setupUi(self)
         self.timer = QTimer(self)
-        # try:
-        #     self.timer.timeout.connect(self.show_time)
-        #     self.timer.start()
-        # except BaseException as e:
-        #     if isinstance(e, KeyboardInterrupt):
-        #         self.timer.stop()
-        #         os._exit(0)
-        # self.time_count = 1
         self.pushButton_savecount = 0
         self.fileName = ''
         self.old_fileName_choose = ''
@@ -66,7 +58,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_6.clicked.connect(self.save_info)
         self.pushButton_7.clicked.connect(self.choose_xlsx_file)
         self.pushButton_8.clicked.connect(self.show_time)
-        # self.pushButton_9.clicked.connect(self.choose_pull)
+        self.pushButton_9.clicked.connect(self.choose_pull)
         self.pushButton_10.clicked.connect(self.test_save_fail)
         self.pushButton_11.clicked.connect(self.first_test)
         self.pushButton_12.clicked.connect(self.second_test)
@@ -141,27 +133,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.lineEdit.setText('')
         self.lineEdit_2.setText('')
         self.label_3.setText("")
-        # self.time_count = 1
-        # self.timer.start()
-        # self.pushButton_8.setText("暂停")
-        # self.pushButton_14.setText("暂停")
         self.label_10.setText("")
         self.label_13.setText("")
-
-    # def stop_time(self):
-    #     '''
-    #     暂停和开始记录时间
-    #     '''
-    #     if self.time_count:
-    #         self.timer.stop()
-    #         self.time_count = 0
-    #         self.pushButton_8.setText("开始")
-    #         self.pushButton_14.setText("开始")
-    #     else:
-    #         self.timer.start()
-    #         self.time_count = 1
-    #         self.pushButton_8.setText("暂停")
-    #         self.pushButton_14.setText("暂停")
 
     def show_time(self):
         '''
@@ -1429,7 +1402,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
     def check_pushbutton_text(self):
         if self.pushButton_2.text() == "刷写soc":
             self.check_ip_tar()
-        elif self.pushButton_2.text() == "立即重启":
+        elif self.pushButton_2.text() = = "立即重启":
             self.reboot_now()
         else:
             pass
