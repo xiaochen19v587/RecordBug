@@ -1,40 +1,47 @@
-#!/bin/sh
-
-# export SYS_ARCH_UNAME=`uname --m`
-# if [ "${SYS_ARCH_UNAME}" == "aarch64" ]
-# then
-# 	echo "SYS aarch64"
-# 	export ZROS_ROOT="/data/zros"
-# elif [ "${SYS_ARCH_UNAME}" == "x86_64" ]
-# then
-# 	echo "SYS X86_64"
-# 	export ZROS_ROOT=`find . -name "mx86" -ls | tail -1 | dirname`
-# else
-# 	echo "UNKNOWN SYS"
-# fi
-
-# echo "ZROS_ROOT [${ZROS_ROOT}]"
-FILEPATH=`dirname $0`
-export LAUNCHER_FILE_PATH="${FILEPATH}/launcher_all.xml"
-# export NODE_LIST_FILE="${FILEPATH}/cache/enabled_node_list"
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from xml.dom.minidom import parse
+import os
 
 
-node_list()
-{
-	cat ${LAUNCHER_FILE_PATH} \
-		| grep -v launcher \
-		| grep -v "xml version" \
-		| grep -v nodes \
-		| grep -v "<enable>0<\/enable>" \
-		| rev | cut -d\/ -f1 \
-		| rev | cut -d\> -f1 \
-		| sort -fb
-}
+def get_node_name(nodeList, fileName):
+    filePath = '/data/zros/res/launcher/{}'.format(fileName)
+    try:
+        domTree = parse(filePath)
+    except IOError as e:
+        print('Not Find {}'.format(fileName))
+        return 0
+    # 获取根节点
+    rootNode = domTree.documentElement
+    # 获取enable信息
+    enableNodeList = rootNode.getElementsByTagName("enable")
+    for enableNode in enableNodeList:
+        if enableNode.childNodes[0].data == '1':
+            # 如果enable信息为1,获取对应父节点名
+            pn = enableNode.parentNode
+            # 添加进列表
+            nodeList.append(pn.nodeName)
+    return 1
 
-echo `node_list`
-# node_list > ${NODE_LIST_FILE}
 
-#echo "Enabled nodes:"
-# cat ${NODE_LIST_FILE}
+def create_node_file(nodeList):
+    nodeStr = ''
+    for node in nodeList:
+        nodeStr += node
+        nodeStr += ' '
+    with open('{}/node_list'.format(os.path.dirname(__file__)), 'w')as f:
+        f.write(nodeStr)
 
 
+def main():
+    nodeList = []
+    launcherList = ['launcher_all.xml', 'launcher_common.xml']
+    for launcherFile in launcherList:
+        # 获取launcher文件中的节点名
+        get_node_name(nodeList, launcherFile)
+    # 将节点名添加进文件中
+    create_node_file(nodeList)
+
+
+if __name__ == '__main__':
+    main()

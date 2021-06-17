@@ -1402,7 +1402,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
     def check_pushbutton_text(self):
         if self.pushButton_2.text() == "刷写soc":
             self.check_ip_tar()
-        elif self.pushButton_2.text() = = "立即重启":
+        elif self.pushButton_2.text() == "立即重启":
             self.reboot_now()
         else:
             pass
