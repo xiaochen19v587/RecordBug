@@ -53,7 +53,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton.clicked.connect(self.get_info)
         self.pushButton_2.clicked.connect(self.clear_all)
         self.pushButton_3.clicked.connect(self.pull_file)
-        # self.pushButton_4.clicked.connect(self.choose_push)
+        self.pushButton_4.clicked.connect(self.choose_push)
         self.pushButton_5.clicked.connect(self.save_update)
         self.pushButton_6.clicked.connect(self.save_info)
         self.pushButton_7.clicked.connect(self.choose_xlsx_file)
@@ -68,7 +68,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_16.clicked.connect(self.save_to_excel)
         self.pushButton_17.clicked.connect(self.open_rviz)
         self.pushButton_18.clicked.connect(self.test_save_info)
-        # self.pushButton_19.clicked.connect(self.brush_soc)
+        self.pushButton_19.clicked.connect(self.brush_soc)
         self.pushButton_20.clicked.connect(self.get_carinfo)
         self.pushButton_21.clicked.connect(self.get_test_progress)
         self.comboBox.currentTextChanged.connect(self.change_sheet)
@@ -792,12 +792,14 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pull.show()
 
     def choose_push(self):
-        self.choosepush = Choose_Push_Views()
-        self.choosepush.show()
+        # self.choosepush = Choose_Push_Views()
+        # self.choosepush.show()
+        self.create_pop('功能暂未开放')
 
     def choose_pull(self):
-        self.choosepull = Choose_Pull_Views()
-        self.choosepull.show()
+        # self.choosepull = Choose_Pull_Views()
+        # self.choosepull.show()
+        self.create_pop('功能暂未开放')
 
     def open_rviz(self):
         self.recordbag = Open_Rviz_Views()
@@ -808,8 +810,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.create_pop('没有找到指定的rviz文件')
 
     def brush_soc(self):
-        self.brushsoc = Brush_Soc_Views()
-        self.brushsoc.show()
+        # self.brushsoc = Brush_Soc_Views()
+        # self.brushsoc.show()
+        self.create_pop('功能暂未开放')
 # 第三界面
 
 # 退出提示
