@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'Ui/openrviz.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_OpenRviz(object):
     def setupUi(self, OpenRviz):
@@ -48,6 +50,6 @@ class Ui_OpenRviz(object):
         _translate = QtCore.QCoreApplication.translate
         OpenRviz.setWindowTitle(_translate("OpenRviz", "OpenRviz"))
         self.label.setText(_translate("OpenRviz", "输入板子ip地址:"))
+        self.lineEdit.setText(_translate("OpenRviz", "192.168.1.175"))
         self.pushButton.setText(_translate("OpenRviz", "打开rviz/记录bag包"))
         self.pushButton_2.setText(_translate("OpenRviz", "取消"))
-

@@ -6,6 +6,7 @@ import re
 import subprocess
 import xlrd
 import time
+import paramiko
 from openpyxl import load_workbook
 from time import sleep
 from PyQt5.QtCore import *
@@ -88,6 +89,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.create_log_daily.function_start_log("get_info")
         car_name = self.label_17.text()
         question_time = self.label_3.text()
+        if not question_time:
+            self.show_time()
+            question_time = self.label_3.text()
         test_type = self.comboBox_2.currentText()
         test_path = self.lineEdit.text()
         question_place = self.lineEdit_2.text()
@@ -752,7 +756,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             if self.plainTextEdit_2.toPlainText():
                 self.change_info(self.plainTextEdit_2.toPlainText())
             else:
-                self.create_log_daily.function_info("test_save_info","current input test questions is None")
+                self.create_log_daily.function_info(
+                    "test_save_info", "current input test questions is None")
                 self.create_pop('请输入测试问题描述')
                 self.create_log_daily.function_close_log("test_save_info")
                 return
@@ -823,11 +828,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         生成测试问题,根据测试用例ID,右侧问题时间,问题输入框的内容生成一条问题记录,修改pushButton_savecount为4
         '''
         self.create_log_daily.function_start_log("change_info")
-        if self.label_13.text():
-            err_time = self.label_13.text().split(
-                ' ')[0][5:] + self.label_13.text().split(' ')[1]
-        else:
-            err_time = ''
+        if not self.label_13.text():
+            self.show_time()
+        err_time = self.label_13.text().split(
+            ' ')[0][5:] + self.label_13.text().split(' ')[1]
         info = "{}{}\n".format(err_time, err_info)
         self.save_test_info(info)
         self.label_3.setText('')
@@ -1015,9 +1019,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def choose_push(self):
         self.create_log_daily.function_start_log("choose_push")
-        # self.choosepush = Choose_Push_Views()
-        # self.choosepush.show()
-        self.create_pop('功能暂未开放')
+        self.choosepush = Choose_Push_Views()
+        self.choosepush.show()
+        # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("choose_push")
 
     def choose_pull(self):
@@ -1236,7 +1240,8 @@ class Choose_Pull_Views(QDialog, Ui_ChoosePull):
             if self.radioButton.isChecked():
                 self.adb_pull()
             elif self.radioButton_2.isChecked():
-                self.scp_pull()
+                # self.scp_pull()
+                Record_Info_Views().create_pop("scp方式暂时未开放")
         else:
             self.create_log_daily.function_info_log(
                 "check", "current selected method is None")
@@ -1489,7 +1494,8 @@ class Choose_Push_Views(QDialog, Ui_ChoosePush):
             if self.radioButton.isChecked():
                 self.adb_push()
             elif self.radioButton_2.isChecked():
-                self.scp_push()
+                # self.scp_push()
+                Record_Info_Views().create_pop("scp方式暂时未开放")
         else:
             self.create_log_daily.function_info_log(
                 "check", "current select method is None")
@@ -1653,8 +1659,22 @@ class Scp_Push_Views(QDialog, Ui_ScpPush):
         '''
         推送文件
         '''
-        self.create_log_daily.function_start_log("push")
         self.timer.stop()
+        # host_ip = "192.168.5.175"
+        # host_name = 'root'
+        # passwd = '820@zongmutech'
+        # if os.system('ping -c 1 -W 1 {}'.format(host_ip)):
+        #     self.create_log_daily.function_info_log(
+        #         "current connected is faild")
+        # else:
+        #     self.create_log_daily.function_info_log(
+        #         "current connected is succeed")
+        #     ssh = paramiko.SSHClient()
+        #     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        #     ssh.connect(hostname=host_ip, port=22,
+        #                 username=host_name, password=passwd)
+        #     stdin, stdout, stderr = ssh.exec_command('mount -o rw,remount /')
+        self.create_log_daily.function_start_log("push")
         if os.path.isfile(self.filepath):
             res = subprocess.call(
                 "scp {} root@{}:{}".format(self.filepath, self.host, self.pushpath), shell=True)
@@ -2021,17 +2041,19 @@ class Generate_File_Path(object):
 
 class CREATE_LOG_DAILY(object):
     '''
-        打印函数log日志
+        打印log日志
     '''
 
     def function_start_log(self, function_name):
-        print("[{}][dug][{}]FUNCTION {} IS START".format(time.strftime("%Y-%m-%d %H:%M:%S",
-                                                                       time.gmtime()), function_name, function_name))
+        pass
+        # print("[{}][dug][{}]FUNCTION {} IS START".format(time.strftime("%Y-%m-%d %H:%M:%S",
+        #    time.gmtime()), function_name, function_name))
 
     def function_info_log(self, function_name, function_info):
         print("[{}][dug][{}]{}".format(time.strftime("%Y-%m-%d %H:%M:%S",
                                                      time.gmtime()), function_name, function_info))
 
     def function_close_log(self, function_name):
-        print("[{}][dug][{}]{}".format(time.strftime("%Y-%m-%d %H:%M:%S",
-                                                     time.gmtime()), function_name, "FUNCTION {} IS CLOSE".format(function_name)))
+        pass
+        # print("[{}][dug][{}]{}".format(time.strftime("%Y-%m-%d %H:%M:%S",
+        #                                              time.gmtime()), function_name, "FUNCTION {} IS CLOSE".format(function_name)))
