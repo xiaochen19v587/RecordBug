@@ -756,7 +756,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             if self.plainTextEdit_2.toPlainText():
                 self.change_info(self.plainTextEdit_2.toPlainText())
             else:
-                self.create_log_daily.function_info(
+                self.create_log_daily.function_info_log(
                     "test_save_info", "current input test questions is None")
                 self.create_pop('请输入测试问题描述')
                 self.create_log_daily.function_close_log("test_save_info")
@@ -854,10 +854,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.textBrowser_4.setPlainText(info)
         self.plainTextEdit_2.setPlainText('')
         self.create_log_daily.function_close_log("save_test_info")
-        # self.time_count = 1
-        # self.timer.start()
-        # self.pushButton_8.setText("暂停")
-        # self.pushButton_14.setText("暂停")
 
     def first_test(self):
         self.create_log_daily.function_start_log("first_test")
@@ -1026,9 +1022,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def choose_pull(self):
         self.create_log_daily.function_start_log("choose_pull")
-        # self.choosepull = Choose_Pull_Views()
-        # self.choosepull.show()
-        self.create_pop('功能暂未开放')
+        self.choosepull = Choose_Pull_Views()
+        self.choosepull.show()
+        # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("choose_pull")
 
     def open_rviz(self):
@@ -1134,6 +1130,27 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.timer.timeout.connect(self.pull)
         self.pushButton_2.clicked.connect(self.close)
         self.pushButton_3.clicked.connect(self.choosedir)
+        self.pushButton_4.clicked.connect(self.choosefile)
+
+    def choosefile(self):
+        self.create_log_daily.function_start_log("choosefile")
+        if not subprocess.call("cd /run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/", shell=True):
+            fileName_choose, filetype = QFileDialog.getOpenFileName(self,
+                                                                    "选取文件",
+                                                                    "/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/",
+                                                                    "Text Files (*.tar.gz);Text Files (*.tar.gz)")
+            if fileName_choose:
+                self.create_log_daily.function_info_log(
+                    "choosefile", "current select file is {}".format(fileName_choose))
+                self.lineEdit_2.setText(fileName_choose)
+            else:
+                self.create_log_daily.function_info_log(
+                    "choosefile", "current select file is None")
+        else:
+            self.label_2.setText("shfp service is not connected")
+            self.create_log_daily.function_info_log(
+                "choosefile", "current shfp service is not connected")
+        self.create_log_daily.function_close_log("choosefile")
 
     def clicked_pull(self):
         '''
@@ -1141,19 +1158,23 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         '''
         self.create_log_daily.function_start_log("clicked_pull")
         self.create_log_daily.function_info_log(
-            "clicked_pull", "current select filepath is {}".format(self.lineEdit.text()))
-        if self.lineEdit.text() == '/home/user':
-            pass
-        else:
-            if self.lineEdit.text()[0:11] == '/home/user/':
-                pass
-            else:
+            "clicked_pull", "current select file is {}".format(self.lineEdit_2.text()))
+        self.create_log_daily.function_info_log(
+            "clicked_pull", "current select filesavepath is {}".format(self.lineEdit.text()))
+        if not self.lineEdit_2.text()[-7:] == '.tar.gz':
+            self.label_2.setText("请选择正确的.tar.gz文件")
+            self.create_log_daily.function_info_log(
+                "clicked_pull", "current select tarfile is bad")
+            return
+        if not self.lineEdit.text() == '/home/user':
+            if not self.lineEdit.text()[0:11] == '/home/user/':
+                self.create_log_daily.function_info_log(
+                    "clicked_pull", "current select savepath is bad")
                 self.label_2.setText("请选择/home/user/下的路径")
                 self.label_3.setText("")
                 self.label_4.setText("")
                 return
-        self.filepath = self.lineEdit.text()+"/"
-        self.label_2.setText("正在拉取文件,请稍候")
+        self.label_2.setText("正在拉取文件,请稍等")
         self.label_3.setText("")
         self.label_4.setText("")
         self.timer.start(1)
@@ -1165,22 +1186,40 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         '''
         self.create_log_daily.function_start_log("pull")
         self.timer.stop()
-        try:
-            data = os.popen(Generate_File_Path().base_path(
-                'Sh/pull_file.sh')+' '+self.filepath)
-            data = str(data.read())
-        except:
-            self.label_3.setText("Unknown Err")
+        tarfile = self.lineEdit_2.text()
+        shafile = tarfile + ".sha256.txt"
+        tarfilepath = tarfile.split("/")[-2]
+        savepath = self.lineEdit.text() + "/" + tarfilepath
+        pctarfile = tarfile.split("/")[-1]
+        pcshafile = shafile.split("/")[-1]
+        if not subprocess.call("ls {}".format(savepath+"/"+pctarfile), shell=True):
+            self.create_log_daily.function_info_log(
+                "pull", "current {} is existed".format(pctarfile))
+            self.label_3.setText("文件已存在")
             return
-        if data.split('\n')[0] == "连接服务器失败...":
-            self.label_3.setText(data.split('\n')[0])
-        elif data.split('\n')[0][-2:] == "确定":
-            self.label_3.setText(data.split('\n')[1])
-            self.label_4.setText("文件拉取完成")
-        elif data.split('\n')[0] == "已经有最新的DailyBuild...":
-            self.label_3.setText(data.split('\n')[0])
-        self.create_log_daily.function_info_log(
-            "pull", "current state is {}".format(data.split('\n')[0]))
+        if subprocess.call("cd {}".format(savepath), shell=True):
+            subprocess.call("mkdir {}".format(savepath), shell=True)
+            self.create_log_daily.function_info_log(
+                "pull", "create {} path is succeed".format(savepath))
+        if subprocess.call("scp -p {} {}".format(tarfile, savepath), shell=True):
+            self.create_log_daily.function_info_log(
+                "pull", "scp {} is faild".format(tarfile))
+            self.label_3.setText("拉取文件失败")
+            return
+        if not subprocess.call("scp -p {} {}".format(shafile, savepath), shell=True):
+            self.label_3.setText("正在校验文件完整性")
+        else:
+            return
+        if not subprocess.call(["cd {}".format(savepath), "sha256sum -c <(grep {} {})".format(pctarfile, pcshafile)], shell=True):
+            subprocess.call(
+                "rm -r {}".format(savepath + "/" + pcshafile), shell=True)
+            self.label_4.setText("校验成功，文件完整")
+            self.create_log_daily.function_info_log(
+                "pull", "check successful，file complete")
+        else:
+            self.create_log_daily.function_info_log(
+                "pull", "check fail，file incomplete")
+            self.label_4.setText("校验失败，文件不完整")
         self.pushButton_2.setText('完成')
         self.create_log_daily.function_close_log("pull")
 
@@ -2001,7 +2040,7 @@ class Find_File(object):
     def find_dir_path(self, dirname, startdir):
         '''
         dirname:需要查找的文件夹名;startdir:开始查找的起始路径
-        retrun:查找到的所有文件夹路径的列表
+        return:查找到的所有文件夹路径的列表
         '''
         self.create_log_daily.function_start_log("find_dir_path")
         for root, dirs, names in os.walk(startdir):
@@ -2025,7 +2064,7 @@ class Generate_File_Path(object):
     def base_path(self, path):
         '''
         path:文件当前位置
-        retrun:文件在不同运行环境中的路径
+        return:文件在不同运行环境中的路径
         '''
         self.create_log_daily.function_start_log("base_path")
         if getattr(sys, 'frozen', None):

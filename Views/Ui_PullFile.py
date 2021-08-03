@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'Ui/pullfile.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_PullFile(object):
     def setupUi(self, PullFile):
@@ -20,9 +22,19 @@ class Ui_PullFile(object):
         self.label = QtWidgets.QLabel(PullFile)
         self.label.setObjectName("label")
         self.verticalLayout.addWidget(self.label)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.lineEdit_2 = QtWidgets.QLineEdit(PullFile)
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.horizontalLayout_3.addWidget(self.lineEdit_2)
+        self.pushButton_4 = QtWidgets.QPushButton(PullFile)
+        self.pushButton_4.setObjectName("pushButton_4")
+        self.horizontalLayout_3.addWidget(self.pushButton_4)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.lineEdit = QtWidgets.QLineEdit(PullFile)
+        self.lineEdit.setText("")
         self.lineEdit.setObjectName("lineEdit")
         self.horizontalLayout_2.addWidget(self.lineEdit)
         self.pushButton_3 = QtWidgets.QPushButton(PullFile)
@@ -59,8 +71,7 @@ class Ui_PullFile(object):
         _translate = QtCore.QCoreApplication.translate
         PullFile.setWindowTitle(_translate("PullFile", "PullFile"))
         self.label.setText(_translate("PullFile", "点击按钮拉取文件..."))
-        self.lineEdit.setText(_translate("PullFile", "/home/user/"))
+        self.pushButton_4.setText(_translate("PullFile", "选取文件"))
         self.pushButton_3.setText(_translate("PullFile", "选择路径"))
         self.pushButton.setText(_translate("PullFile", "拉取文件"))
         self.pushButton_2.setText(_translate("PullFile", "取消"))
-
