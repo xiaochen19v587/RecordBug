@@ -1989,13 +1989,9 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
                 "push_default", "please manually replace default.xml and defaultDevice")
             self.label_4.setText('请手动替换default.xml和defaultDevice')
             return 0
-        self.create_log_daily.function_close_log("push_default")
 
     def reboot_now(self):
         self.create_log_daily.function_start_log("reboot_now")
-        address = 'root@{}'.format(self.address)
-        self.create_log_daily.function_info_log(
-            "reboot_now", "current address is {}".format(address))
         self.ssh.exec_command("/sbin/reboot")
         self.create_log_daily.function_info_log("reboot_now","ECU is restarting")
         self.close()
