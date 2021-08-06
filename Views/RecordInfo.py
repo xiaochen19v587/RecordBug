@@ -1997,6 +1997,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         self.create_log_daily.function_info_log(
             "reboot_now", "current address is {}".format(address))
         self.ssh.exec_command("/sbin/reboot")
+        self.create_log_daily.function_info_log("reboot_now","ECU is restarting")
         self.close()
         self.create_log_daily.function_close_log("reboot_now")
 
