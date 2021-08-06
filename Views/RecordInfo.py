@@ -1010,12 +1010,16 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
     def pull_file(self):
         self.create_log_daily.function_start_log("pull_file")
         self.pull = Pull_File_Views()
+        self.create_log_daily.function_info_log(
+            "pull_file", "current select function is pull_file")
         self.pull.show()
         self.create_log_daily.function_close_log("pull_file")
 
     def choose_push(self):
         self.create_log_daily.function_start_log("choose_push")
         self.choosepush = Choose_Push_Views()
+        self.create_log_daily.function_info_log(
+            "choose_push", "current select function is choose_push")
         self.choosepush.show()
         # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("choose_push")
@@ -1023,6 +1027,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
     def choose_pull(self):
         self.create_log_daily.function_start_log("choose_pull")
         self.choosepull = Choose_Pull_Views()
+        self.create_log_daily.function_info_log(
+            "choose_pull", "current select function is choose_pull")
         self.choosepull.show()
         # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("choose_pull")
@@ -1031,6 +1037,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.create_log_daily.function_start_log("open_rviz")
         self.recordbag = Open_Rviz_Views()
         filepath = Find_File().find_dir_path('zros_dbg_dev_record', '/home/user/')
+        self.create_log_daily.function_info_log(
+            "open_rviz", "current select function is open_rviz")
         self.create_log_daily.function_info_log(
             "open_rviz", "zros_dbg_dev_record path is{}".format(filepath))
         if filepath:
@@ -1042,6 +1050,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
     def brush_soc(self):
         self.create_log_daily.function_start_log("brush_soc")
         self.brushsoc = Brush_Soc_Views()
+        self.create_log_daily.function_info_log(
+            "brush_soc", "current select function is brush_soc")
         self.brushsoc.show()
         # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("brush_soc")
@@ -1205,7 +1215,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             self.create_log_daily.function_info_log(
                 "pull", "scp {} is faild".format(tarfile))
             self.label_3.setText("拉取文件失败")
-            subprocess.call("rm -r {}".format(savepath),shell=True)
+            subprocess.call("rm -r {}".format(savepath), shell=True)
             return
         if not subprocess.call("scp -p {} {}".format(shafile, savepath), shell=True):
             self.label_3.setText("正在校验文件完整性")
@@ -1989,7 +1999,8 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
     def reboot_now(self):
         self.create_log_daily.function_start_log("reboot_now")
         self.ssh.exec_command("/sbin/reboot")
-        self.create_log_daily.function_info_log("reboot_now","ECU is restarting")
+        self.create_log_daily.function_info_log(
+            "reboot_now", "ECU is restarting")
         self.close()
         self.create_log_daily.function_close_log("reboot_now")
 
