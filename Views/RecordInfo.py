@@ -1041,9 +1041,9 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
 
     def brush_soc(self):
         self.create_log_daily.function_start_log("brush_soc")
-        # self.brushsoc = Brush_Soc_Views()
-        # self.brushsoc.show()
-        self.create_pop('功能暂未开放')
+        self.brushsoc = Brush_Soc_Views()
+        self.brushsoc.show()
+        # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("brush_soc")
 # 第三界面
 
@@ -1210,7 +1210,10 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             self.label_3.setText("正在校验文件完整性")
         else:
             return
-        if not subprocess.call(["cd {}".format(savepath), "sha256sum -c <(grep {} {})".format(pctarfile, pcshafile)], shell=True):
+        if not subprocess.call("cd {}".format(savepath), shell=True):
+            print(pcshafile)
+            # subprocess.call(
+            #     "sha256sum -c <(grep {} {})".format(savepath+'/'+pctarfile, savepath+'/'+pcshafile), shell=True)
             subprocess.call(
                 "rm -r {}".format(savepath + "/" + pcshafile), shell=True)
             self.label_4.setText("校验成功，文件完整")
@@ -1465,6 +1468,8 @@ class Scp_Pull_Views(QDialog, Ui_ScpPull):
             self.create_log_daily.function_info_log(
                 "save_logfile", "pulling file, please wait")
             self.label_3.setText('正在拉取文件')
+            self.create_log_daily.function_info_log(
+                "save_logfile", "current pulling file")
             self.host = host
             self.filepath = filepath
             self.savepath = savepath
@@ -1699,20 +1704,6 @@ class Scp_Push_Views(QDialog, Ui_ScpPush):
         推送文件
         '''
         self.timer.stop()
-        # host_ip = "192.168.5.175"
-        # host_name = 'root'
-        # passwd = '820@zongmutech'
-        # if os.system('ping -c 1 -W 1 {}'.format(host_ip)):
-        #     self.create_log_daily.function_info_log(
-        #         "current connected is faild")
-        # else:
-        #     self.create_log_daily.function_info_log(
-        #         "current connected is succeed")
-        #     ssh = paramiko.SSHClient()
-        #     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        #     ssh.connect(hostname=host_ip, port=22,
-        #                 username=host_name, password=passwd)
-        #     stdin, stdout, stderr = ssh.exec_command('mount -o rw,remount /')
         self.create_log_daily.function_start_log("push")
         if os.path.isfile(self.filepath):
             res = subprocess.call(
@@ -1814,7 +1805,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         self.pushButton.clicked.connect(self.choose_file)
         self.pushButton_2.clicked.connect(self.check_pushbutton_text)
         self.pushButton_3.clicked.connect(self.close)
-        self.timer.timeout.connect(self.brush_soc)
+        self.timer.timeout.connect(self.ssh_connect)
 
     def choose_file(self):
         self.create_log_daily.function_start_log("choose_file")
@@ -1862,101 +1853,137 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
                 "check_ip_tar", "current selected zros_file extension not is .tar.gz")
             self.label_4.setText('请选择.tar.gz文件')
             return
-        self.label_4.setText('正在刷写dailybuild,请稍等')
+        self.label_4.setText('正在刷soc,请稍等')
         self.timer.start(1)
         self.create_log_daily.function_close_log("check_ip_tar")
 
-    def brush_soc(self):
+    def ssh_connect(self):
+        self.create_log_daily.function_start_log("ssh_connect")
+        self.timer.stop()
+        if os.system('ping -c 1 -W 1 {}'.format(self.address)):
+            self.label_4.setText("ssh连接失败")
+            self.create_log_daily.function_info_log(
+                "ssh_connect", "current ssh connect is faild")
+            return
+        self.create_log_daily.function_info_log(
+            "ssh_connect", "current ssh connect is succeeded")
+        self.ssh = paramiko.SSHClient()
+        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.ssh.connect(hostname=self.address, port=22,
+                         username="root", password="820@zongmutech")
+        stdin, stdout, stderr = self.ssh.exec_command('mount -o rw,remount /')
+        self.check_dir()
+        self.create_log_daily.function_close_log("ssh_connect")
+
+    def check_dir(self):
         '''
         检测板子中是否有原始文件
         '''
-        self.timer.stop()
-        self.create_log_daily.function_start_log("brush_soc")
-        address = 'root@{}'.format(self.address)
-        self.create_log_daily.function_info_log(
-            "current address is {}".format(address))
-        Mkdir_Path_Views().mkdir_dir_path('/home/user/Data/car_instance/')
-        subprocess.call('cd /home/user/Data/car_instance/', shell=True)
-        res = subprocess.call(
-            'timeout 3 ssh {} "rmdir /data/zros/"'.format(address), shell=True)
-        if res:
-            # 板子中/data/zros/文件夹不为空
-            self.default_existent = 1
-            res = subprocess.call(
-                'timeout 2 adb push {} /usr/bin/'.format(Generate_File_Path().base_path('Sh/killallnodes')), shell=True)
-            if not res:
-                subprocess.call('timeout 2 adb push {} /usr/bin/'.format(
-                    Generate_File_Path().base_path('Sh/get_node_list')), shell=True)
-                res = subprocess.call(
-                    'timeout 3 scp -p {}:/data/zros/res/car_instance/default* /home/user/Data/car_instance/'.format(address), shell=True)
-                if not res:
+        self.create_log_daily.function_start_log("check_dir")
+        stdin, stdout, stderr = self.ssh.exec_command("ls /data/zros")
+        if stdout.read().decode().split("\n")[:-1]:
+            # 备份文件后删除文件，再进行推送，default.xml和defaultDevice文件存在
+            self.create_log_daily.function_info_log(
+                "check_dir", "/data/zros/ is existence")
+            Mkdir_Path_Views().mkdir_dir_path('/home/user/Data/car_instance/')
+            if not subprocess.call('timeout 2 adb push {} /usr/bin/'.format(
+                    Generate_File_Path().base_path('Sh/killallnodes')), shell=True):
+                self.create_log_daily.function_info_log(
+                    "check_dir", "adb connect succeed")
+                self.create_log_daily.function_info_log(
+                    "remove_allfile", "push killallnodes")
+                if not subprocess.call("adb pull -p /data/zros/res/car_instance/default.xml /home/user/Data/car_instance/", shell=True) and not subprocess.call("adb pull -p /data/zros/res/car_instance/defaultDevice /home/user/Data/car_instance/", shell=True):
+                    self.create_log_daily.function_info_log(
+                        "check_dir", "pull default.xml and defaultDevice succeed")
                     self.default_existent = 1
                 else:
+                    self.create_log_daily.function_info_log(
+                        "check_dir", "pull default.xml and defaultDevice faild")
                     self.default_existent = 0
-                subprocess.call(
-                    'timeout 2 ssh {} "killallnodes;cd /data/zros/;rm -r *"'.format(address), shell=True)
-                res = self.push_tar(address)
-                if res:
-                    print('\nError')
-                else:
-                    self.label_4.setText("刷写完成")
-                    print('\nSuccessful')
-                    self.pushButton_2.setText('立即重启')
-                    self.pushButton_3.setText('稍后重启')
+                self.remove_allfile()
+                self.push_tar()
             else:
-                self.label_4.setText('请检查adb连接')
+                self.label_4.setText("请检查adb连接")
+                self.create_log_daily.function_info_log(
+                    "check_dir", "please check adb connected")
         else:
-            # 板子中/data/zros/文件夹为空
+            # 创建/data/zros/文件夹后直接推送文件,default.xml和defaultDevice文件不存在
+            self.create_log_daily.function_info_log(
+                "check_dir", "/data/zros/ is not existence")
             self.default_existent = 0
-            res = subprocess.call(
-                'timeout 3 ssh {} "mkdir /data/zros/"'.format(address), shell=True)
-            res = self.push_tar(address)
-            if res:
-                print('\nError')
-            else:
-                self.label_4.setText('刷写完成')
-                print('\nSuccessful')
-                self.pushButton_2.setText('立即重启')
-                self.pushButton_3.setText('稍后重启')
-        self.create_log_daily.function_close_log("brush_soc")
+            self.push_tar()
+        self.create_log_daily.function_close_log("check_dir")
 
-    def push_tar(self, address):
+    def remove_allfile(self):
+        self.create_log_daily.function_start_log("remove_allfile")
+        subprocess.call('timeout 2 adb push {} /usr/bin/'.format(
+            Generate_File_Path().base_path('Sh/killallnodes')), shell=True)
+        self.create_log_daily.function_info_log(
+            "remove_allfile", "push killallnodes")
+        subprocess.call('timeout 2 adb push {} /usr/bin/'.format(
+            Generate_File_Path().base_path('Sh/get_node_list')), shell=True)
+        self.create_log_daily.function_info_log(
+            "remove_allfile", "push get_node_list")
+        self.ssh.exec_command("killallnodes;cd /data/zros/;rm -r *")
+        self.create_log_daily.function_close_log("remove_allfile")
+
+    def push_tar(self):
         '''
         刷写soc版本
         '''
         self.create_log_daily.function_start_log("push_tar")
-        res = subprocess.call(
-            'adb push -p {} /data/zros/'.format(self.tarfilepath), shell=True)
-        if not res:
-            res = subprocess.call(
-                'ssh {} "cd /data/zros/;tar -zxvf *"'.format(address), shell=True)
+        subprocess.call("adb usb 820@zongmutech", shell=True)
+        timesleep = 0
+        while True:
+            timesleep += 1
+            if timesleep < 10:
+                time.sleep(1)
+                if not subprocess.call('timeout 2 adb push {} /usr/bin/'.format(
+                        Generate_File_Path().base_path('Sh/killallnodes')), shell=True):
+                    break
+            else:
+                self.label_4.setText("adb连接超时")
+                self.create_log_daily.function_info_log(
+                    "push_tar", "adb connect timeout")
+                break
+        if not subprocess.call(
+                'adb push -p {} /data/zros/'.format(self.tarfilepath), shell=True):
+            stdin, stdout, stderr = self.ssh.exec_command(
+                "cd /data/zros/;tar -zxvf *")
+            self.label_4.setText("正在解压文件")
+            self.create_log_daily.function_info_log(
+                "push_tar", "current decompressing files")
+            if stdout.read().decode():
+                if not self.default_existent:
+                    self.label_4.setText('请手动替换default.xml和defaultDevice')
+                    self.create_log_daily.function_info_log(
+                        "push_tar", "please push default.xml and defaultDevice")
+                else:
+                    if self.push_default():
+                        self.label_4.setText('刷写完成')
+                    self.create_log_daily.function_info_log(
+                        "push_tar", "brush succeed")
+                self.pushButton_2.setText('立即重启')
+                self.pushButton_3.setText('稍后重启')
         else:
             self.create_log_daily.function_info_log(
                 "push_tar", "push dailybuild Faild, please check adb connect")
             self.label_4.setText('推送dailybuild失败,请检查adb连接')
-            return 1
-        if not res:
-            res = self.push_default(address)
-            return res
-        else:
-            self.create_log_daily.function_info_log(
-                "push_tar", "unzip dailybuild Faild, please check system memory")
-            self.label_4.setText('解压dailybuild失败,请查看板子内存是否足够')
-            return 1
-        self.create_log_daily.function_close_log("push_tar")
 
-    def push_default(self, address):
+    def push_default(self):
         self.create_log_daily.function_start_log("push_default")
         if self.default_existent:
-            res = subprocess.call(
-                'timeout 3 scp /home/user/Data/car_instance/default* {}:/data/zros/res/car_instance/'.format(address), shell=True)
-            if not res:
-                return 0
-            else:
+            if subprocess.call("adb push -p /home/user/Data/car_instance/default.xml /data/zros/res/car_instance/", shell=True):
                 self.create_log_daily.function_info_log(
-                    "push_default", "replace default.xml and defaultDevice Faild")
-                self.label_4.setText('替换default.xml和defaultDevice文件失败')
-                return 1
+                    "push_default", "replace default.xml Faild")
+                self.label_4.setText('替换default.xml文件失败')
+                return 0
+            if subprocess.call("adb push -p /home/user/Data/car_instance/defaultDevice /data/zros/res/car_instance/", shell=True):
+                self.create_log_daily.function_info_log(
+                    "push_default", "replace defaultDevice Faild")
+                self.label_4.setText('替换defaultDevice文件失败')
+                return 0
+            return 1
         else:
             self.create_log_daily.function_info_log(
                 "push_default", "please manually replace default.xml and defaultDevice")
@@ -1969,8 +1996,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         address = 'root@{}'.format(self.address)
         self.create_log_daily.function_info_log(
             "reboot_now", "current address is {}".format(address))
-        subprocess.call(
-            'timeout 2 ssh {} "/sbin/reboot"'.format(address), shell=True)
+        self.ssh.exec_command("/sbin/reboot")
         self.close()
         self.create_log_daily.function_close_log("reboot_now")
 
