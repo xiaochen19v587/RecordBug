@@ -7,6 +7,7 @@ import subprocess
 import xlrd
 import time
 import paramiko
+import _thread
 from openpyxl import load_workbook
 from time import sleep
 from PyQt5.QtCore import *
@@ -1021,7 +1022,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.create_log_daily.function_info_log(
             "choose_push", "current select function is choose_push")
         self.choosepush.show()
-        # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("choose_push")
 
     def choose_pull(self):
@@ -1030,7 +1030,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.create_log_daily.function_info_log(
             "choose_pull", "current select function is choose_pull")
         self.choosepull.show()
-        # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("choose_pull")
 
     def open_rviz(self):
@@ -1053,7 +1052,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.create_log_daily.function_info_log(
             "brush_soc", "current select function is brush_soc")
         self.brushsoc.show()
-        # self.create_pop('功能暂未开放')
         self.create_log_daily.function_close_log("brush_soc")
 # 第三界面
 
@@ -1136,11 +1134,22 @@ class Pull_File_Views(QDialog, Ui_PullFile):
 
     def initUI(self):
         self.pushButton.clicked.connect(self.clicked_pull)
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.pull)
         self.pushButton_2.clicked.connect(self.close)
         self.pushButton_3.clicked.connect(self.choosedir)
         self.pushButton_4.clicked.connect(self.choosefile)
+
+    def choosedir(self):
+        # 选择文件夹
+        self.create_log_daily.function_start_log("choosedir")
+        dir_choose = QFileDialog.getExistingDirectory(self,
+                                                      "选取文件夹",
+                                                      "/home/user/")
+        if dir_choose == "":
+            return
+        self.create_log_daily.function_info_log(
+            "choosedir", "current selected dir is {}".format(dir_choose))
+        self.lineEdit.setText(dir_choose)
+        self.create_log_daily.function_close_log("choosedir")
 
     def choosefile(self):
         self.create_log_daily.function_start_log("choosefile")
@@ -1187,7 +1196,13 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.label_2.setText("正在拉取文件,请稍等")
         self.label_3.setText("")
         self.label_4.setText("")
-        self.timer.start(1)
+        try:
+            _thread.start_new_thread(self.pull, ())
+            self.create_log_daily.function_info_log(
+                "clicked_pull", "created thread succeed,thread name is pull")
+        except:
+            self.create_log_daily.function_info_log(
+                "clicked_pull", "created thread faild,thread name is pull")
         self.create_log_daily.function_close_log("clicked_pull")
 
     def pull(self):
@@ -1195,7 +1210,6 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         运行pull_file.sh,拉取文件,根据pull_file.sh脚本返回的结果判断文件拉取结果
         '''
         self.create_log_daily.function_start_log("pull")
-        self.timer.stop()
         tarfile = self.lineEdit_2.text()
         shafile = tarfile + ".sha256.txt"
         tarfilepath = tarfile.split("/")[-2]
@@ -1236,19 +1250,6 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             self.label_4.setText("校验失败，文件不完整")
         self.pushButton_2.setText('完成')
         self.create_log_daily.function_close_log("pull")
-
-    def choosedir(self):
-        # 选择文件夹
-        self.create_log_daily.function_start_log("choosedir")
-        dir_choose = QFileDialog.getExistingDirectory(self,
-                                                      "选取文件夹",
-                                                      "/home/user/")
-        if dir_choose == "":
-            return
-        self.create_log_daily.function_info_log(
-            "choosedir", "current selected dir is {}".format(dir_choose))
-        self.lineEdit.setText(dir_choose)
-        self.create_log_daily.function_close_log("choosedir")
 
 
 class Choose_Pull_Views(QDialog, Ui_ChoosePull):
@@ -1809,14 +1810,12 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
         self.tarfilepath = ''
         self.address = ''
         self.default_existent = 1
-        self.timer = QTimer()
         self.initUi()
 
     def initUi(self):
         self.pushButton.clicked.connect(self.choose_file)
         self.pushButton_2.clicked.connect(self.check_pushbutton_text)
         self.pushButton_3.clicked.connect(self.close)
-        self.timer.timeout.connect(self.ssh_connect)
 
     def choose_file(self):
         self.create_log_daily.function_start_log("choose_file")
@@ -1844,7 +1843,6 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
     def check_ip_tar(self):
         '''
         检测用户输入的ip地址和选择的soc版本文件
-        创建timer计时器
         '''
         self.create_log_daily.function_start_log("check_ip_tar")
         self.label_4.setText('')
@@ -1865,12 +1863,17 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             self.label_4.setText('请选择.tar.gz文件')
             return
         self.label_4.setText('正在刷soc,请稍等')
-        self.timer.start(1)
+        try:
+            _thread.start_new_thread(self.ssh_connect, ())
+            self.create_log_daily.function_info_log(
+                "check_ip_tar", "create thread succeed,thread name is ssh_connect")
+        except:
+            self.create_log_daily.function_info_log(
+                "check_ip_tar", "create thread faild,thread name is ssh_connect")
         self.create_log_daily.function_close_log("check_ip_tar")
 
     def ssh_connect(self):
         self.create_log_daily.function_start_log("ssh_connect")
-        self.timer.stop()
         if os.system('ping -c 1 -W 1 {}'.format(self.address)):
             self.label_4.setText("ssh连接失败")
             self.create_log_daily.function_info_log(
