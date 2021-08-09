@@ -1921,8 +1921,14 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             # 创建/data/zros/文件夹后直接推送文件,default.xml和defaultDevice文件不存在
             self.create_log_daily.function_info_log(
                 "check_dir", "/data/zros/ is not existence")
-            self.default_existent = 0
-            self.push_tar()
+            if not subprocess.call('timeout 2 adb push {} /usr/bin/'.format(
+                    Generate_File_Path().base_path('Sh/killallnodes')), shell=True):
+                self.default_existent = 0
+                self.push_tar()
+            else:
+                self.label_4.setText("请检查adb连接")
+                self.create_log_daily.function_info_log(
+                    "check_dir", "please check adb connected")
         self.create_log_daily.function_close_log("check_dir")
 
     def remove_allfile(self):
@@ -2102,8 +2108,6 @@ class Generate_File_Path(object):
         else:
             basedir = os.path.dirname(
                 os.path.dirname(os.path.abspath(__file__)))
-        self.create_log_daily.function_info_log(
-            "base_path", "current working directory is {}".format(basedir))
         self.create_log_daily.function_close_log("base_path")
         return os.path.join(basedir, path)
 
