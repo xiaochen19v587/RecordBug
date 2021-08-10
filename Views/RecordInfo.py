@@ -1196,13 +1196,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.label_2.setText("正在拉取文件,请稍等")
         self.label_3.setText("")
         self.label_4.setText("")
-        try:
-            _thread.start_new_thread(self.pull, ())
-            self.create_log_daily.function_info_log(
-                "clicked_pull", "created thread succeed,thread name is pull")
-        except:
-            self.create_log_daily.function_info_log(
-                "clicked_pull", "created thread faild,thread name is pull")
+        CREATE_THREAD().start(self.pull,())
         self.create_log_daily.function_close_log("clicked_pull")
 
     def pull(self):
@@ -1862,13 +1856,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             self.label_4.setText('请选择.tar.gz文件')
             return
         self.label_4.setText('正在刷soc,请稍等')
-        try:
-            _thread.start_new_thread(self.ssh_connect, ())
-            self.create_log_daily.function_info_log(
-                "check_ip_tar", "create thread succeed,thread name is ssh_connect")
-        except:
-            self.create_log_daily.function_info_log(
-                "check_ip_tar", "create thread faild,thread name is ssh_connect")
+        CREATE_THREAD().start(self.ssh_connect,())
         self.create_log_daily.function_close_log("check_ip_tar")
 
     def ssh_connect(self):
@@ -2122,7 +2110,7 @@ class CREATE_LOG_DAILY(object):
     def function_start_log(self, function_name):
         pass
         # print("[{}][dug][{}]FUNCTION {} IS START".format(time.strftime("%Y-%m-%d %H:%M:%S",
-        #    time.gmtime()), function_name, function_name))
+        #                                                                time.gmtime()), function_name, function_name))
 
     def function_info_log(self, function_name, function_info):
         print("[{}][dug][{}]{}".format(time.strftime("%Y-%m-%d %H:%M:%S",
@@ -2130,5 +2118,21 @@ class CREATE_LOG_DAILY(object):
 
     def function_close_log(self, function_name):
         pass
-        # print("[{}][dug][{}]{}".format(time.strftime("%Y-%m-%d %H:%M:%S",
-        #                                              time.gmtime()), function_name, "FUNCTION {} IS CLOSE".format(function_name)))
+        # print("[{}][dug][{}]FUNCTION {} IS CLOSE".format(time.strftime("%Y-%m-%d %H:%M:%S",
+        #                                                                time.gmtime()), function_name, function_name))
+
+
+class CREATE_THREAD(object):
+    def __init__(self):
+        self.create_log_daily = CREATE_LOG_DAILY()
+
+    def start(self, function_name, *args):
+        self.create_log_daily.function_start_log("start")
+        try:
+            _thread.start_new_thread(function_name, *args)
+            self.create_log_daily.function_info_log(
+                "start", "create thread succeed,function name is {}".format(function_name))
+        except:
+            self.create_log_daily.function_info_log(
+                "start", "create thread faild,function name is {}".format(function_name))
+        self.create_log_daily.function_close_log("start")
