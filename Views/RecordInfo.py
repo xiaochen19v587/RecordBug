@@ -1236,7 +1236,6 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         else:
             return
         if not subprocess.call("cd {}".format(savepath), shell=True):
-            print(pcshafile)
             # subprocess.call(
             #     "sha256sum -c <(grep {} {})".format(savepath+'/'+pctarfile, savepath+'/'+pcshafile), shell=True)
             subprocess.call(
