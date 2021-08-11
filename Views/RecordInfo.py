@@ -1196,7 +1196,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.label_2.setText("正在拉取文件,请稍等")
         self.label_3.setText("")
         self.label_4.setText("")
-        CREATE_THREAD().start(self.pull,())
+        CREATE_THREAD().start(self.pull, ())
         self.create_log_daily.function_close_log("clicked_pull")
 
     def pull(self):
@@ -1856,7 +1856,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
             self.label_4.setText('请选择.tar.gz文件')
             return
         self.label_4.setText('正在刷soc,请稍等')
-        CREATE_THREAD().start(self.ssh_connect,())
+        CREATE_THREAD().start(self.ssh_connect, ())
         self.create_log_daily.function_close_log("check_ip_tar")
 
     def ssh_connect(self):
@@ -2123,6 +2123,10 @@ class CREATE_LOG_DAILY(object):
 
 
 class CREATE_THREAD(object):
+    '''
+        创建线程，function_name:需要创建线程的函数名 *args：元组类型，需要创建线程的函数的参数
+    '''
+
     def __init__(self):
         self.create_log_daily = CREATE_LOG_DAILY()
 
