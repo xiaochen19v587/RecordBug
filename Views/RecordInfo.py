@@ -10,6 +10,7 @@ import paramiko
 import _thread
 from openpyxl import load_workbook
 from time import sleep
+from decimal import Decimal
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from Ui_RecordInfo import Ui_RecordBug
@@ -1219,12 +1220,17 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             subprocess.call("mkdir {}".format(savepath), shell=True)
             self.create_log_daily.function_info_log(
                 "pull", "create {} path is succeed".format(savepath))
+        self.pullprogress_stop = 0
+        CREATE_THREAD().start(self.pull_progress, (tarfile, savepath+"/"+pctarfile))
         if subprocess.call("scp -p {} {}".format(tarfile, savepath), shell=True):
             self.create_log_daily.function_info_log(
-                "pull", "scp {} is faild".format(tarfile))
+                "pull", "scp {} is faild".format(savepath+"/"+pctarfile))
             self.label_3.setText("拉取文件失败")
-            subprocess.call("rm -r {}".format(savepath), shell=True)
+            subprocess.call(
+                "rm -r {}".format(savepath+"/"+pctarfile), shell=True)
+            self.pullprogress_stop = 1
             return
+        self.pullprogress_stop = 1
         if not subprocess.call("scp -p {} {}".format(shafile, savepath), shell=True):
             self.label_3.setText("正在校验文件完整性")
         else:
@@ -1243,6 +1249,13 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             self.label_4.setText("校验失败，文件不完整")
         self.pushButton_2.setText('完成')
         self.create_log_daily.function_close_log("pull")
+
+    def pull_progress(self, ftptarfile, pctarfile):
+        while not self.pullprogress_stop:
+            currect_progress = Generate_Progress().get_file_size(ftptarfile, pctarfile)
+            self.label_3.setText("当前进度：{}%".format(
+                str(currect_progress).split(".")[0]))
+            time.sleep(0.1)
 
 
 class Choose_Pull_Views(QDialog, Ui_ChoosePull):
@@ -2124,7 +2137,7 @@ class CREATE_LOG_DAILY(object):
 
 class CREATE_THREAD(object):
     '''
-        创建线程，function_name:需要创建线程的函数名 *args：元组类型，需要创建线程的函数的参数
+        创建线程，function_name:需要创建线程的函数名 *args:元组类型，需要创建线程的函数的参数
     '''
 
     def __init__(self):
@@ -2136,7 +2149,30 @@ class CREATE_THREAD(object):
             _thread.start_new_thread(function_name, *args)
             self.create_log_daily.function_info_log(
                 "start", "create thread succeed,function name is {}".format(function_name))
-        except:
+        except Exception as e:
             self.create_log_daily.function_info_log(
                 "start", "create thread faild,function name is {}".format(function_name))
         self.create_log_daily.function_close_log("start")
+
+
+class Generate_Progress(object):
+    '''
+        生成进度条,completefilename:完整的文件(路径+文件名) incompletefilename:保存的文件(路径+文件名)
+    '''
+    def __init__(self, *args):
+        self.create_log_daily = CREATE_LOG_DAILY()
+
+    def get_file_size(self, completefilename, incompletefilename):
+        self.create_log_daily.function_start_log("get_file_size")
+        try:
+            COMPLETEFILESIZE = os.path.getsize(completefilename)
+        except:
+            COMPLETEFILESIZE = 0
+        try:
+            INCOMPLETEFILESIZE = os.path.getsize(incompletefilename)
+        except:
+            INCOMPLETEFILESIZE = 1
+        currect_progress = Decimal(
+            INCOMPLETEFILESIZE/COMPLETEFILESIZE).quantize(Decimal("0.00"))*100
+        self.create_log_daily.function_close_log("get_file_size")
+        return currect_progress
