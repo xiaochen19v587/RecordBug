@@ -1220,7 +1220,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             subprocess.call("mkdir {}".format(savepath), shell=True)
             self.create_log_daily.function_info_log(
                 "pull", "create {} path is succeed".format(savepath))
-        self.pullprogress_stop = 0
+        self.pullprogress_stop = 0 # 进度条结束条件
         CREATE_THREAD().start(self.pull_progress, (tarfile, savepath+"/"+pctarfile))
         if subprocess.call("scp -p {} {}".format(tarfile, savepath), shell=True):
             self.create_log_daily.function_info_log(
@@ -2167,7 +2167,7 @@ class Generate_Progress(object):
         try:
             COMPLETEFILESIZE = os.path.getsize(completefilename)
         except:
-            COMPLETEFILESIZE = 0
+            COMPLETEFILESIZE = 1
         try:
             INCOMPLETEFILESIZE = os.path.getsize(incompletefilename)
         except:
