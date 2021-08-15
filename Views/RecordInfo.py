@@ -2140,3 +2140,7 @@ class CREATE_THREAD(object):
             self.create_log_daily.function_info_log(
                 "start", "create thread faild,function name is {}".format(function_name))
         self.create_log_daily.function_close_log("start")
+
+"""
+wangmenghan MacBook Pro test
+"""
