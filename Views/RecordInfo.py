@@ -2142,12 +2142,10 @@ class CREATE_THREAD(object):
                 "start", "create thread faild,function name is {}".format(function_name))
         self.create_log_daily.function_close_log("start")
 
-"""
-wangmenghan MacBook Pro test
-"""
-
-
 class Test(object):
+    """
+    wangmenghan MacBook Pro test
+    """
     def __init__(self) -> None:
         super().__init__()
 
