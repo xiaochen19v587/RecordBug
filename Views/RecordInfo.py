@@ -47,6 +47,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
         self.initUI()
+        Test().test()
 
     def initUI(self):
         '''
@@ -2144,3 +2145,11 @@ class CREATE_THREAD(object):
 """
 wangmenghan MacBook Pro test
 """
+
+
+class Test(object):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def test(self):
+        print("this is Test.test from menghan.wang's macbook pro")
