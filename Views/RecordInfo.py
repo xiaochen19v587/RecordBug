@@ -1252,9 +1252,9 @@ class Pull_File_Views(QDialog, Ui_PullFile):
 
     def pull_progress(self, ftptarfile, pctarfile):
         while not self.pullprogress_stop:
-            currect_progress = Generate_Progress().get_file_size(ftptarfile, pctarfile)
-            self.label_3.setText("当前进度：{}%".format(
-                str(currect_progress).split(".")[0]))
+            currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE= Generate_Progress().get_file_size(ftptarfile, pctarfile)
+            self.label_3.setText("当前进度：{}/{}  {}%".format(
+                INCOMPLETEFILESIZE, COMPLETEFILESIZE, str(currect_progress).split(".")[0]))
             time.sleep(0.1)
 
 
@@ -2175,7 +2175,7 @@ class Generate_Progress(object):
         currect_progress = Decimal(
             INCOMPLETEFILESIZE/COMPLETEFILESIZE).quantize(Decimal("0.00"))*100
         self.create_log_daily.function_close_log("get_file_size")
-        return currect_progress
+        return currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE
 """
 wangmenghan MacBook Pro test
 """
