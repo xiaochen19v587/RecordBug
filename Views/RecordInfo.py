@@ -2176,3 +2176,6 @@ class Generate_Progress(object):
             INCOMPLETEFILESIZE/COMPLETEFILESIZE).quantize(Decimal("0.00"))*100
         self.create_log_daily.function_close_log("get_file_size")
         return currect_progress
+"""
+wangmenghan MacBook Pro test
+"""
