@@ -1221,7 +1221,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             subprocess.call("mkdir {}".format(savepath), shell=True)
             self.create_log_daily.function_info_log(
                 "pull", "create {} path is succeed".format(savepath))
-        self.pullprogress_stop = 0 # 进度条结束条件
+        self.pullprogress_stop = 0  # 进度条结束条件
         CREATE_THREAD().start(self.pull_progress, (tarfile, savepath+"/"+pctarfile))
         if subprocess.call("scp -p {} {}".format(tarfile, savepath), shell=True):
             self.create_log_daily.function_info_log(
@@ -1253,7 +1253,8 @@ class Pull_File_Views(QDialog, Ui_PullFile):
 
     def pull_progress(self, ftptarfile, pctarfile):
         while not self.pullprogress_stop:
-            currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE= Generate_Progress().get_file_size(ftptarfile, pctarfile)
+            currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE = Generate_Progress(
+            ).get_file_size(ftptarfile, pctarfile)
             self.label_3.setText("当前进度：{}/{}  {}%".format(
                 INCOMPLETEFILESIZE, COMPLETEFILESIZE, str(currect_progress).split(".")[0]))
             time.sleep(0.1)
@@ -2160,6 +2161,7 @@ class Generate_Progress(object):
     '''
         生成进度条,completefilename:完整的文件(路径+文件名) incompletefilename:保存的文件(路径+文件名)
     '''
+
     def __init__(self, *args):
         self.create_log_daily = CREATE_LOG_DAILY()
 
@@ -2177,13 +2179,13 @@ class Generate_Progress(object):
             INCOMPLETEFILESIZE/COMPLETEFILESIZE).quantize(Decimal("0.00"))*100
         self.create_log_daily.function_close_log("get_file_size")
         return currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE
-"""
-wangmenghan MacBook Pro test
-"""
+
+
 class Test(object):
-    """
+    '''
     wangmenghan MacBook Pro test
-    """
+    '''
+
     def __init__(self) -> None:
         super().__init__()
 
