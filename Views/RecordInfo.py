@@ -1994,10 +1994,14 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
     def push_default(self):
         self.create_log_daily.function_start_log("push_default")
         if self.default_existent:
-            if subprocess.call("adb push -p /home/user/Data/car_instance/default.xml /data/zros/res/car_instance/", shell=True) and subprocess.call("adb push -p /home/user/Data/car_instance/defaultDevice /data/zros/res/car_instance/", shell=True):
+            if subprocess.call("adb push -p /home/user/Data/car_instance/default.xml /data/zros/res/car_instance/", shell=True):
                 self.create_log_daily.function_info_log(
-                    "push_default", "replace default files Faild")
-                self.label_4.setText('替换default文件失败')
+                    "push_default", "replace default.xml files Faild")
+                self.label_4.setText('替换default.xml文件失败')
+                return 0
+            if subprocess.call("adb push -p /home/user/Data/car_instance/defaultDevice /data/zros/res/car_instance/", shell=True):
+                self.create_log_daily.function_info_log("push_default","replace defaultDevice files Faild")
+                self.label_4.setText("替换defaultDevice文件失败")
                 return 0
             return 1
         else:
