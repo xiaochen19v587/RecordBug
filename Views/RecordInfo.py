@@ -48,7 +48,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
         self.initUI()
-        Test().test()
 
     def initUI(self):
         '''
@@ -2179,15 +2178,3 @@ class Generate_Progress(object):
             INCOMPLETEFILESIZE/COMPLETEFILESIZE).quantize(Decimal("0.00"))*100
         self.create_log_daily.function_close_log("get_file_size")
         return currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE
-
-
-class Test(object):
-    '''
-    wangmenghan MacBook Pro test
-    '''
-
-    def __init__(self) -> None:
-        super().__init__()
-
-    def test(self):
-        print("this is Test.test from menghan.wang's macbook pro")
