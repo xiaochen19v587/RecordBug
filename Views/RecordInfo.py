@@ -39,7 +39,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         super().__init__()
         self.create_log_daily = CREATE_LOG_DAILY()
         self.setupUi(self)
-        self.timer = QTimer(self)
         self.pushButton_savecount = 0
         self.fileName = ''
         self.old_fileName_choose = ''
@@ -47,8 +46,11 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+        self.timeStop=1
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.time_thread)
+        self.timer.start()
         self.initUI()
-        Test().test()
 
     def initUI(self):
         '''
@@ -63,13 +65,13 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_5.clicked.connect(self.save_update)
         self.pushButton_6.clicked.connect(self.save_info)
         self.pushButton_7.clicked.connect(self.choose_xlsx_file)
-        self.pushButton_8.clicked.connect(self.show_time)
+        self.pushButton_8.clicked.connect(self.time_clicked)
         self.pushButton_9.clicked.connect(self.choose_pull)
         self.pushButton_10.clicked.connect(self.test_save_fail)
         self.pushButton_11.clicked.connect(self.first_test)
         self.pushButton_12.clicked.connect(self.second_test)
         self.pushButton_13.clicked.connect(self.third_test)
-        self.pushButton_14.clicked.connect(self.show_time)
+        self.pushButton_14.clicked.connect(self.time_clicked)
         self.pushButton_15.clicked.connect(self.test_save_pass)
         self.pushButton_16.clicked.connect(self.save_to_excel)
         self.pushButton_17.clicked.connect(self.open_rviz)
@@ -93,8 +95,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         car_name = self.label_17.text()
         question_time = self.label_3.text()
         if not question_time:
-            self.show_time()
-            question_time = self.label_3.text()
+            question_time = ' '
         test_type = self.comboBox_2.currentText()
         test_path = self.lineEdit.text()
         question_place = self.lineEdit_2.text()
@@ -166,29 +167,55 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.plainTextEdit.setPlainText('')
         self.lineEdit.setText('')
         self.lineEdit_2.setText('')
-        self.label_3.setText("")
         self.label_10.setText("")
-        self.label_13.setText("")
+        self.timeStop = 1
+        self.timer.start()
         self.create_log_daily.function_info_log(
             "clear_all", "Reset complete")
         self.create_log_daily.function_close_log("clear_all")
+
+    def time_clicked(self):
+        '''
+        修改timeStop状态,启动timer定时器
+        '''
+        if self.timeStop:
+            self.timeStop = 0
+        else:
+            self.timeStop = 1
+        self.timer.start()
+    
+    def time_thread(self):
+        '''
+        timer定时器函数，创建show_time线程
+        '''
+        self.create_log_daily.function_start_log("time_thread")
+        self.timer.stop()
+        self.create_log_daily.function_info_log("time_thread", "create time thread")
+        CREATE_THREAD().start(self.show_time,())
+        self.create_log_daily.function_close_log("time_thread")
 
     def show_time(self):
         '''
         显示时间
         '''
         self.create_log_daily.function_start_log("show_time")
-        datetime = QDateTime.currentDateTime()
-        years = datetime.toString().split(' ')[-1]
-        months = datetime.toString().split(' ')[1][0:2]
-        days = datetime.toString().split(' ')[2]
-        times = datetime.toString().split(' ')[3]
-        self.label_3.setText(
-            '{}年{}{}日 {}'.format(years, months, days, times))
-        self.label_13.setText(
-            '{}年{}{}日 {}'.format(years, months, days, times))
-        self.create_log_daily.function_info_log(
-            "show_time", "set time is {}年{}{}日 {}".format(years, months, days, times))
+        if self.timeStop:
+            self.pushButton_8.setText("点击暂停")
+            self.pushButton_14.setText("点击暂停")
+        else:
+            self.pushButton_8.setText("点击开始")
+            self.pushButton_14.setText("点击开始")
+        while self.timeStop:
+            datetime = QDateTime.currentDateTime()
+            years = datetime.toString().split(' ')[-1]
+            months = datetime.toString().split(' ')[1][0:2]
+            days = datetime.toString().split(' ')[2]
+            times = datetime.toString().split(' ')[3]
+            self.label_3.setText(
+                '{}年{}{}日 {}'.format(years, months, days, times))
+            self.label_13.setText(
+                '{}年{}{}日 {}'.format(years, months, days, times))
+            time.sleep(1)
         self.create_log_daily.function_close_log("show_time")
 
     def keyPressEvent(self, event):
@@ -199,7 +226,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if event.key() == Qt.Key_Escape:
             self.create_log_daily.function_info_log(
                 "keyPressEvent", "Esc is pressed")
-            self.show_time()
+            self.time_clicked()
         if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_C:
             self.create_log_daily.function_info_log(
                 "keyPressEvent", "Ctrl and C is pressed")
@@ -347,7 +374,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.old_fileName_choose = self.fileName_choose
         self.create_log_daily.function_info_log(
             "choose_xlsx_file", "choose xlsx file is {}".format(self.fileName_choose))
-
         # 创建新的excel对象
         table_data = xlrd.open_workbook(self.fileName_choose)
         # 设置comboBox条目
@@ -1994,10 +2020,15 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
     def push_default(self):
         self.create_log_daily.function_start_log("push_default")
         if self.default_existent:
-            if subprocess.call("adb push -p /home/user/Data/car_instance/default.xml /data/zros/res/car_instance/", shell=True) and subprocess.call("adb push -p /home/user/Data/car_instance/defaultDevice /data/zros/res/car_instance/", shell=True):
+            if subprocess.call("adb push -p /home/user/Data/car_instance/default.xml /data/zros/res/car_instance/", shell=True):
                 self.create_log_daily.function_info_log(
-                    "push_default", "replace default files Faild")
-                self.label_4.setText('替换default文件失败')
+                    "push_default", "replace default.xml files Faild")
+                self.label_4.setText('替换default.xml文件失败')
+                return 0
+            if subprocess.call("adb push -p /home/user/Data/car_instance/defaultDevice /data/zros/res/car_instance/", shell=True):
+                self.create_log_daily.function_info_log(
+                    "push_default", "replace defaultDevice files Faild")
+                self.label_4.setText('替换defaultDevice文件失败')
                 return 0
             return 1
         else:
@@ -2177,15 +2208,3 @@ class Generate_Progress(object):
             INCOMPLETEFILESIZE/COMPLETEFILESIZE).quantize(Decimal("0.00"))*100
         self.create_log_daily.function_close_log("get_file_size")
         return currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE
-"""
-wangmenghan MacBook Pro test
-"""
-class Test(object):
-    """
-    wangmenghan MacBook Pro test
-    """
-    def __init__(self) -> None:
-        super().__init__()
-
-    def test(self):
-        print("this is Test.test from menghan.wang's macbook pro")
