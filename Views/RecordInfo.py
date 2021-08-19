@@ -178,11 +178,14 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         修改timeStop状态,启动timer定时器
         '''
+        self.create_log_daily.function_start_log("time_clicked")
         if self.timeStop:
             self.timeStop = 0
         else:
             self.timeStop = 1
+        self.create_log_daily.function_info_log("time_clicked", "current timeStop is {}".format(self.timeStop))
         self.timer.start()
+        self.create_log_daily.function_close_log("time_clicked")
     
     def time_thread(self):
         '''

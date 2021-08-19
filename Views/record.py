@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-# import sip
+import sip
 from PyQt5.QtWidgets import QApplication
 from RecordInfo import Record_Info_Views
 
