@@ -784,7 +784,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             "test_save_info", "current pushButton_count is {}".format(self.pushButton_count))
         if self.pushButton_count:
             self.create_log_daily.function_info_log(
-                "test_save_pass", "current test_info is {}".format(self.plainTextEdit_2.toPlainText()))
+                "test_save_info", "current test_info is {}".format(self.plainTextEdit_2.toPlainText()))
             if self.plainTextEdit_2.toPlainText():
                 self.change_info(self.plainTextEdit_2.toPlainText())
             else:
@@ -869,6 +869,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.label_3.setText('')
         self.label_13.setText('')
         self.pushButton_savecount = 4
+        self.timeStop = 1
+        self.timer.start()
         self.create_log_daily.function_close_log("change_info")
 
     def save_test_info(self, info):
