@@ -1252,7 +1252,7 @@ class Pull_File_Views(QDialog, Ui_PullFile):
             subprocess.call("mkdir {}".format(savepath), shell=True)
             self.create_log_daily.function_info_log(
                 "pull", "create {} path is succeed".format(savepath))
-        self.pullprogress_stop = 0 # 进度条结束条件
+        self.pullprogress_stop = 0  # 进度条结束条件
         CREATE_THREAD().start(self.pull_progress, (tarfile, savepath+"/"+pctarfile))
         if subprocess.call("scp -p {} {}".format(tarfile, savepath), shell=True):
             self.create_log_daily.function_info_log(
@@ -2196,6 +2196,7 @@ class Generate_Progress(object):
     '''
         生成进度条,completefilename:完整的文件(路径+文件名) incompletefilename:保存的文件(路径+文件名)
     '''
+
     def __init__(self, *args):
         self.create_log_daily = CREATE_LOG_DAILY()
 
