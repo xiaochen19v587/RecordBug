@@ -1284,9 +1284,9 @@ class Pull_File_Views(QDialog, Ui_PullFile):
 
     def pull_progress(self, ftptarfile, pctarfile):
         while not self.pullprogress_stop:
-            currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE= Generate_Progress().get_file_size(ftptarfile, pctarfile)
+            currect_progress, InCompleteFileSize, CompleteFileSize= Generate_Progress().get_file_size(ftptarfile, pctarfile)
             self.label_3.setText("当前进度：{}/{}  {}%".format(
-                INCOMPLETEFILESIZE, COMPLETEFILESIZE, str(currect_progress).split(".")[0]))
+                InCompleteFileSize, CompleteFileSize, str(currect_progress).split(".")[0]))
             time.sleep(0.1)
 
 
@@ -2202,14 +2202,14 @@ class Generate_Progress(object):
     def get_file_size(self, completefilename, incompletefilename):
         self.create_log_daily.function_start_log("get_file_size")
         try:
-            COMPLETEFILESIZE = os.path.getsize(completefilename)
+            CompleteFileSize = os.path.getsize(completefilename)
         except:
-            COMPLETEFILESIZE = 1
+            CompleteFileSize = 1
         try:
-            INCOMPLETEFILESIZE = os.path.getsize(incompletefilename)
+            InCompleteFileSize = os.path.getsize(incompletefilename)
         except:
-            INCOMPLETEFILESIZE = 1
+            InCompleteFileSize = 1
         currect_progress = Decimal(
-            INCOMPLETEFILESIZE/COMPLETEFILESIZE).quantize(Decimal("0.00"))*100
+            InCompleteFileSize/CompleteFileSize).quantize(Decimal("0.00"))*100
         self.create_log_daily.function_close_log("get_file_size")
-        return currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE
+        return currect_progress, InCompleteFileSize, CompleteFileSize
