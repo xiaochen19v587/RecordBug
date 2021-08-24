@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'Ui/recordinfo.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.14.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_RecordBug(object):
     def setupUi(self, RecordBug):
@@ -338,7 +340,7 @@ class Ui_RecordBug(object):
         self.label.setText(_translate("RecordBug", "车辆信息:"))
         self.pushButton_20.setText(_translate("RecordBug", "点击获取"))
         self.label_2.setText(_translate("RecordBug", "问题时间:"))
-        self.pushButton_8.setText(_translate("RecordBug", "获取当前时间"))
+        self.pushButton_8.setText(_translate("RecordBug", "暂停"))
         self.label_4.setText(_translate("RecordBug", "测试类型:"))
         self.comboBox_2.setItemText(0, _translate("RecordBug", "接驾"))
         self.comboBox_2.setItemText(1, _translate("RecordBug", "泊车"))
@@ -379,4 +381,3 @@ class Ui_RecordBug(object):
         self.pushButton_17.setText(_translate("RecordBug", "打开rviz/记录bag包"))
         self.pushButton_19.setText(_translate("RecordBug", "刷写soc"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("RecordBug", "文件操作"))
-

@@ -39,7 +39,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         super().__init__()
         self.create_log_daily = CREATE_LOG_DAILY()
         self.setupUi(self)
-        self.timer = QTimer(self)
         self.pushButton_savecount = 0
         self.fileName = ''
         self.old_fileName_choose = ''
@@ -47,6 +46,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+        self.timeStop = 1
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.time_thread)
+        self.timer.start()
         self.initUI()
 
     def initUI(self):
@@ -62,13 +65,13 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.pushButton_5.clicked.connect(self.save_update)
         self.pushButton_6.clicked.connect(self.save_info)
         self.pushButton_7.clicked.connect(self.choose_xlsx_file)
-        self.pushButton_8.clicked.connect(self.show_time)
+        self.pushButton_8.clicked.connect(self.time_clicked)
         self.pushButton_9.clicked.connect(self.choose_pull)
         self.pushButton_10.clicked.connect(self.test_save_fail)
         self.pushButton_11.clicked.connect(self.first_test)
         self.pushButton_12.clicked.connect(self.second_test)
         self.pushButton_13.clicked.connect(self.third_test)
-        self.pushButton_14.clicked.connect(self.show_time)
+        self.pushButton_14.clicked.connect(self.time_clicked)
         self.pushButton_15.clicked.connect(self.test_save_pass)
         self.pushButton_16.clicked.connect(self.save_to_excel)
         self.pushButton_17.clicked.connect(self.open_rviz)
@@ -92,8 +95,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         car_name = self.label_17.text()
         question_time = self.label_3.text()
         if not question_time:
-            self.show_time()
-            question_time = self.label_3.text()
+            question_time = ' '
         test_type = self.comboBox_2.currentText()
         test_path = self.lineEdit.text()
         question_place = self.lineEdit_2.text()
@@ -165,29 +167,60 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.plainTextEdit.setPlainText('')
         self.lineEdit.setText('')
         self.lineEdit_2.setText('')
-        self.label_3.setText("")
         self.label_10.setText("")
-        self.label_13.setText("")
+        self.timeStop = 1
+        self.timer.start()
         self.create_log_daily.function_info_log(
             "clear_all", "Reset complete")
         self.create_log_daily.function_close_log("clear_all")
+
+    def time_clicked(self):
+        '''
+        修改timeStop状态,启动timer定时器
+        '''
+        self.create_log_daily.function_start_log("time_clicked")
+        if self.timeStop:
+            self.timeStop = 0
+        else:
+            self.timeStop = 1
+        self.create_log_daily.function_info_log(
+            "time_clicked", "current timeStop is {}".format(self.timeStop))
+        self.timer.start()
+        self.create_log_daily.function_close_log("time_clicked")
+
+    def time_thread(self):
+        '''
+        timer定时器函数，创建show_time线程
+        '''
+        self.create_log_daily.function_start_log("time_thread")
+        self.timer.stop()
+        self.create_log_daily.function_info_log(
+            "time_thread", "create time thread")
+        CREATE_THREAD().start(self.show_time, ())
+        self.create_log_daily.function_close_log("time_thread")
 
     def show_time(self):
         '''
         显示时间
         '''
         self.create_log_daily.function_start_log("show_time")
-        datetime = QDateTime.currentDateTime()
-        years = datetime.toString().split(' ')[-1]
-        months = datetime.toString().split(' ')[1][0:2]
-        days = datetime.toString().split(' ')[2]
-        times = datetime.toString().split(' ')[3]
-        self.label_3.setText(
-            '{}年{}{}日 {}'.format(years, months, days, times))
-        self.label_13.setText(
-            '{}年{}{}日 {}'.format(years, months, days, times))
-        self.create_log_daily.function_info_log(
-            "show_time", "set time is {}年{}{}日 {}".format(years, months, days, times))
+        if self.timeStop:
+            self.pushButton_8.setText("点击暂停")
+            self.pushButton_14.setText("点击暂停")
+        else:
+            self.pushButton_8.setText("点击开始")
+            self.pushButton_14.setText("点击开始")
+        while self.timeStop:
+            datetime = QDateTime.currentDateTime()
+            years = datetime.toString().split(' ')[-1]
+            months = datetime.toString().split(' ')[1][0:2]
+            days = datetime.toString().split(' ')[2]
+            times = datetime.toString().split(' ')[3]
+            self.label_3.setText(
+                '{}年{}{}日 {}'.format(years, months, days, times))
+            self.label_13.setText(
+                '{}年{}{}日 {}'.format(years, months, days, times))
+            time.sleep(1)
         self.create_log_daily.function_close_log("show_time")
 
     def keyPressEvent(self, event):
@@ -198,7 +231,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         if event.key() == Qt.Key_Escape:
             self.create_log_daily.function_info_log(
                 "keyPressEvent", "Esc is pressed")
-            self.show_time()
+            self.time_clicked()
         if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_C:
             self.create_log_daily.function_info_log(
                 "keyPressEvent", "Ctrl and C is pressed")
@@ -346,7 +379,6 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.old_fileName_choose = self.fileName_choose
         self.create_log_daily.function_info_log(
             "choose_xlsx_file", "choose xlsx file is {}".format(self.fileName_choose))
-
         # 创建新的excel对象
         table_data = xlrd.open_workbook(self.fileName_choose)
         # 设置comboBox条目
@@ -754,7 +786,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             "test_save_info", "current pushButton_count is {}".format(self.pushButton_count))
         if self.pushButton_count:
             self.create_log_daily.function_info_log(
-                "test_save_pass", "current test_info is {}".format(self.plainTextEdit_2.toPlainText()))
+                "test_save_info", "current test_info is {}".format(self.plainTextEdit_2.toPlainText()))
             if self.plainTextEdit_2.toPlainText():
                 self.change_info(self.plainTextEdit_2.toPlainText())
             else:
@@ -839,6 +871,8 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.label_3.setText('')
         self.label_13.setText('')
         self.pushButton_savecount = 4
+        self.timeStop = 1
+        self.timer.start()
         self.create_log_daily.function_close_log("change_info")
 
     def save_test_info(self, info):
@@ -1223,9 +1257,9 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.pullprogress_stop = 0  # 进度条结束条件
         CREATE_THREAD().start(self.pull_progress, (tarfile, savepath+"/"+pctarfile))
         if subprocess.call("scp -p {} {}".format(tarfile, savepath), shell=True):
+            self.label_3.setText("拉取文件失败")
             self.create_log_daily.function_info_log(
                 "pull", "scp {} is faild".format(savepath+"/"+pctarfile))
-            self.label_3.setText("拉取文件失败")
             subprocess.call(
                 "rm -r {}".format(savepath+"/"+pctarfile), shell=True)
             self.pullprogress_stop = 1
@@ -1233,29 +1267,35 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.pullprogress_stop = 1
         if not subprocess.call("scp -p {} {}".format(shafile, savepath), shell=True):
             self.label_3.setText("正在校验文件完整性")
+            self.create_log_daily.function_info_log("pull", "checking file integrity")
         else:
+            self.label_3.setText("拉取校验文件失败")
+            self.create_log_daily.function_info_log(
+                "pull", "scp {} is faild".format(savepath+"/"+pcshafile))
             return
-        if not subprocess.call("cd {}".format(savepath), shell=True):
-            # subprocess.call(
-            #     "sha256sum -c <(grep {} {})".format(savepath+'/'+pctarfile, savepath+'/'+pcshafile), shell=True)
-            subprocess.call(
-                "rm -r {}".format(savepath + "/" + pcshafile), shell=True)
+        if not subprocess.call(
+                "cd {} && sha256sum -c < {} {}".format(savepath, pctarfile, pcshafile), shell=True):
+
             self.label_4.setText("校验成功，文件完整")
             self.create_log_daily.function_info_log(
                 "pull", "check successful，file complete")
         else:
+            self.label_4.setText("校验失败，文件不完整")
             self.create_log_daily.function_info_log(
                 "pull", "check fail，file incomplete")
-            self.label_4.setText("校验失败，文件不完整")
+        subprocess.call(
+            "rm -r {}".format(savepath + "/" + pcshafile), shell=True)
         self.pushButton_2.setText('完成')
         self.create_log_daily.function_close_log("pull")
 
     def pull_progress(self, ftptarfile, pctarfile):
         while not self.pullprogress_stop:
-            currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE = Generate_Progress(
+            currect_progress, InCompleteFileSize, CompleteFileSize = Generate_Progress(
             ).get_file_size(ftptarfile, pctarfile)
+            if CompleteFileSize == 1:
+                return
             self.label_3.setText("当前进度：{}/{}  {}%".format(
-                INCOMPLETEFILESIZE, COMPLETEFILESIZE, str(currect_progress).split(".")[0]))
+                InCompleteFileSize, CompleteFileSize, str(currect_progress).split(".")[0]))
             time.sleep(0.1)
 
 
@@ -2000,8 +2040,9 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
                 self.label_4.setText('替换default.xml文件失败')
                 return 0
             if subprocess.call("adb push -p /home/user/Data/car_instance/defaultDevice /data/zros/res/car_instance/", shell=True):
-                self.create_log_daily.function_info_log("push_default","replace defaultDevice files Faild")
-                self.label_4.setText("替换defaultDevice文件失败")
+                self.create_log_daily.function_info_log(
+                    "push_default", "replace defaultDevice files Faild")
+                self.label_4.setText('替换defaultDevice文件失败')
                 return 0
             return 1
         else:
@@ -2171,14 +2212,14 @@ class Generate_Progress(object):
     def get_file_size(self, completefilename, incompletefilename):
         self.create_log_daily.function_start_log("get_file_size")
         try:
-            COMPLETEFILESIZE = os.path.getsize(completefilename)
+            CompleteFileSize = os.path.getsize(completefilename)
         except:
-            COMPLETEFILESIZE = 1
+            CompleteFileSize = 1
         try:
-            INCOMPLETEFILESIZE = os.path.getsize(incompletefilename)
+            InCompleteFileSize = os.path.getsize(incompletefilename)
         except:
-            INCOMPLETEFILESIZE = 1
+            InCompleteFileSize = 1            
         currect_progress = Decimal(
-            INCOMPLETEFILESIZE/COMPLETEFILESIZE).quantize(Decimal("0.00"))*100
+            InCompleteFileSize/CompleteFileSize).quantize(Decimal("0.00"))*100
         self.create_log_daily.function_close_log("get_file_size")
-        return currect_progress, INCOMPLETEFILESIZE, COMPLETEFILESIZE
+        return currect_progress, InCompleteFileSize, CompleteFileSize

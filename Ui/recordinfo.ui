@@ -98,7 +98,7 @@
             <item>
              <widget class="QPushButton" name="pushButton_8">
               <property name="text">
-               <string>获取当前时间</string>
+               <string>暂停</string>
               </property>
              </widget>
             </item>
