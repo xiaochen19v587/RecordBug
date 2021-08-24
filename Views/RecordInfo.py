@@ -46,7 +46,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-        self.timeStop=1
+        self.timeStop = 1
         self.timer = QTimer()
         self.timer.timeout.connect(self.time_thread)
         self.timer.start()
@@ -183,18 +183,20 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.timeStop = 0
         else:
             self.timeStop = 1
-        self.create_log_daily.function_info_log("time_clicked", "current timeStop is {}".format(self.timeStop))
+        self.create_log_daily.function_info_log(
+            "time_clicked", "current timeStop is {}".format(self.timeStop))
         self.timer.start()
         self.create_log_daily.function_close_log("time_clicked")
-    
+
     def time_thread(self):
         '''
         timer定时器函数，创建show_time线程
         '''
         self.create_log_daily.function_start_log("time_thread")
         self.timer.stop()
-        self.create_log_daily.function_info_log("time_thread", "create time thread")
-        CREATE_THREAD().start(self.show_time,())
+        self.create_log_daily.function_info_log(
+            "time_thread", "create time thread")
+        CREATE_THREAD().start(self.show_time, ())
         self.create_log_daily.function_close_log("time_thread")
 
     def show_time(self):
@@ -1255,9 +1257,9 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.pullprogress_stop = 0  # 进度条结束条件
         CREATE_THREAD().start(self.pull_progress, (tarfile, savepath+"/"+pctarfile))
         if subprocess.call("scp -p {} {}".format(tarfile, savepath), shell=True):
+            self.label_3.setText("拉取文件失败")
             self.create_log_daily.function_info_log(
                 "pull", "scp {} is faild".format(savepath+"/"+pctarfile))
-            self.label_3.setText("拉取文件失败")
             subprocess.call(
                 "rm -r {}".format(savepath+"/"+pctarfile), shell=True)
             self.pullprogress_stop = 1
@@ -1265,26 +1267,33 @@ class Pull_File_Views(QDialog, Ui_PullFile):
         self.pullprogress_stop = 1
         if not subprocess.call("scp -p {} {}".format(shafile, savepath), shell=True):
             self.label_3.setText("正在校验文件完整性")
+            self.create_log_daily.function_info_log("pull", "checking file integrity")
         else:
+            self.label_3.setText("拉取校验文件失败")
+            self.create_log_daily.function_info_log(
+                "pull", "scp {} is faild".format(savepath+"/"+pcshafile))
             return
-        if not subprocess.call("cd {}".format(savepath), shell=True):
-            # subprocess.call(
-            #     "sha256sum -c <(grep {} {})".format(savepath+'/'+pctarfile, savepath+'/'+pcshafile), shell=True)
-            subprocess.call(
-                "rm -r {}".format(savepath + "/" + pcshafile), shell=True)
+        if not subprocess.call(
+                "cd {} && sha256sum -c < {} {}".format(savepath, pctarfile, pcshafile), shell=True):
+
             self.label_4.setText("校验成功，文件完整")
             self.create_log_daily.function_info_log(
                 "pull", "check successful，file complete")
         else:
+            self.label_4.setText("校验失败，文件不完整")
             self.create_log_daily.function_info_log(
                 "pull", "check fail，file incomplete")
-            self.label_4.setText("校验失败，文件不完整")
+        subprocess.call(
+            "rm -r {}".format(savepath + "/" + pcshafile), shell=True)
         self.pushButton_2.setText('完成')
         self.create_log_daily.function_close_log("pull")
 
     def pull_progress(self, ftptarfile, pctarfile):
         while not self.pullprogress_stop:
-            currect_progress, InCompleteFileSize, CompleteFileSize= Generate_Progress().get_file_size(ftptarfile, pctarfile)
+            currect_progress, InCompleteFileSize, CompleteFileSize = Generate_Progress(
+            ).get_file_size(ftptarfile, pctarfile)
+            if CompleteFileSize == 1:
+                return
             self.label_3.setText("当前进度：{}/{}  {}%".format(
                 InCompleteFileSize, CompleteFileSize, str(currect_progress).split(".")[0]))
             time.sleep(0.1)
@@ -2209,7 +2218,7 @@ class Generate_Progress(object):
         try:
             InCompleteFileSize = os.path.getsize(incompletefilename)
         except:
-            InCompleteFileSize = 1
+            InCompleteFileSize = 1            
         currect_progress = Decimal(
             InCompleteFileSize/CompleteFileSize).quantize(Decimal("0.00"))*100
         self.create_log_daily.function_close_log("get_file_size")
