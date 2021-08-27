@@ -151,10 +151,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.listWidget.addItem(err_info)
         self.clear_all()
         self.create_log_daily.function_info_log(
+            "record_info", "Record succeeded")
+        self.create_log_daily.function_info_log(
             "record_info", "Reset complete")
         self.label_10.setText("记录成功")
-        self.create_log_daily.function_info_log(
-            "record_info", "Record succeeded")
         self.create_log_daily.function_close_log("record_info")
 
     def clear_all(self):
@@ -1946,7 +1946,7 @@ class Brush_Soc_Views(QDialog, Ui_BrushSoc):
                 self.create_log_daily.function_info_log(
                     "check_dir", "adb connect succeed")
                 self.create_log_daily.function_info_log(
-                    "remove_allfile", "push killallnodes")
+                    "check_dir", "push killallnodes")
                 if not subprocess.call("adb pull -p /data/zros/res/car_instance/default.xml /home/user/Data/car_instance/", shell=True) and not subprocess.call("adb pull -p /data/zros/res/car_instance/defaultDevice /home/user/Data/car_instance/", shell=True):
                     self.create_log_daily.function_info_log(
                         "check_dir", "pull default.xml and defaultDevice succeed")
@@ -2091,10 +2091,11 @@ class Mkdir_Path_Views(object):
         self.create_log_daily.function_info_log(
             "touch_file_path", "current touch file path is {}".format(file_path))
         if subprocess.call('touch {}'.format(file_path), shell=True):
+            self.create_log_daily.function_close_log("touch_file_path")
             return 0
         else:
+            self.create_log_daily.function_close_log("touch_file_path")
             return 1
-        self.create_log_daily.function_close_log("touch_file_path")
 
 
 class Find_File(object):
