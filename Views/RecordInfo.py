@@ -138,7 +138,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
                     "get_info", "default.xml is set succeeded")
         else:
             self.create_log_daily.function_info_log(
-                "get_carinfo", "car_instance Failed to create folder")
+                "get_carinfo", "car_instance Folder create Failed")
             self.create_pop('创建/home/user/Data/car_instance/文件夹失败')
         self.create_log_daily.function_close_log("get_info")
 
