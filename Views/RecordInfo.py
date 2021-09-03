@@ -122,7 +122,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
             self.create_log_daily.function_info_log(
                 "get_carinfo", "car_instance Folder created successfully")
             res = subprocess.call(
-                'timeout 1 adb pull /data/zros/res/car_instance/default.xml /home/user/Data/car_instance/', shell=True)
+                'timeout 1 adb pull /zros/res/car_instance/default.xml /home/user/Data/car_instance/', shell=True)
             if res:
                 self.create_pop('adb is not connect')
                 self.create_log_daily.function_info_log(
@@ -205,11 +205,10 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         '''
         self.create_log_daily.function_start_log("show_time")
         if self.timeStop:
-            self.pushButton_8.setText("点击暂停")
-            self.pushButton_14.setText("点击暂停")
+            pushButton_8_14_Text = "点击暂停"
         else:
-            self.pushButton_8.setText("点击开始")
-            self.pushButton_14.setText("点击开始")
+            pushButton_8_14_Text = "点击开始"
+        self.pushButton_8.setText(pushButton_8_14_Text)
         while self.timeStop:
             datetime = QDateTime.currentDateTime()
             years = datetime.toString().split(' ')[-1]
@@ -1086,7 +1085,7 @@ class Record_Info_Views(QMainWindow, Ui_RecordBug):
         self.brushsoc = Brush_Soc_Views()
         self.create_log_daily.function_info_log(
             "brush_soc", "current select function is brush_soc")
-        self.brushsoc.show()
+        # self.brushsoc.show()
         self.create_log_daily.function_close_log("brush_soc")
 # 第三界面
 
@@ -1188,10 +1187,11 @@ class Pull_File_Views(QDialog, Ui_PullFile):
 
     def choosefile(self):
         self.create_log_daily.function_start_log("choosefile")
-        if not subprocess.call("cd /run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/", shell=True):
+        if not subprocess.call("cd /run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/", shell=True):
+            self.label_2.setText("")
             fileName_choose, filetype = QFileDialog.getOpenFileName(self,
                                                                     "选取文件",
-                                                                    "/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/DailyBuild/B_DropnGo/",
+                                                                    "/run/user/1000/gvfs/smb-share:server=shfp07,share=smartecu/",
                                                                     "Text Files (*.tar.gz);Text Files (*.tar.gz)")
             if fileName_choose:
                 self.create_log_daily.function_info_log(
